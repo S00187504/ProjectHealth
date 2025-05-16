@@ -1,3 +1,15 @@
+/**
+ * User Model
+ * 
+ * Defines the schema for user data:
+ * - Personal information (name, email, phone)
+ * - Authentication details (password with hashing)
+ * - Role and permissions
+ * - Account status and creation timestamps
+ * 
+ * Includes methods for password validation and pre-save hooks
+ * for password hashing before storing in the database.
+ */
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 

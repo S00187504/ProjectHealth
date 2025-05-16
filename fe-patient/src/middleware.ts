@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+/**
+ * Authentication Middleware
+ * 
+ * Handles route protection and role-based access control:
+ * - Checks for valid authentication token in cookies
+ * - Redirects unauthenticated users to login page
+ * - Prevents authenticated users from accessing login/signup pages
+ * - Enforces role-based restrictions (admin vs patient access)
+ * - Allows public access to specified routes
+ * 
+ * This middleware runs on all routes matching the configured matcher pattern.
+ */
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const user = request.cookies.get('user')?.value ? JSON.parse(request.cookies.get('user')?.value || '{}') : null;

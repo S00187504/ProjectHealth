@@ -1,3 +1,16 @@
+/**
+ * Main Server Entry Point
+ * 
+ * Initializes and configures the Express application:
+ * - Environment configuration with dotenv
+ * - Database connection setup
+ * - Middleware configuration (CORS, JSON parsing, etc.)
+ * - Route registration for all API endpoints
+ * - Error handling middleware
+ * - Server startup on configured port
+ * 
+ * This is the main file that bootstraps the entire backend application.
+ */
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';

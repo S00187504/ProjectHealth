@@ -7,6 +7,18 @@ import { Button } from '@/components/ui/button'
 import { FaArrowLeftLong } from 'react-icons/fa6'
 import Link from 'next/link'
 
+/**
+ * User Profile Page
+ * 
+ * Comprehensive profile management interface with multiple sections:
+ * - User avatar/photo management
+ * - Personal information (name, contact details, etc.)
+ * - Medical information (history, allergies, medications)
+ * - Identification documents and verification
+ * 
+ * Each section is implemented as a separate component for maintainability.
+ * Navigation back to dashboard is provided via the back button.
+ */
 function page() {
   return (
     <section className='container-fluid my-6'>

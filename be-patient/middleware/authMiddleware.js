@@ -1,3 +1,15 @@
+/**
+ * Authentication Middleware
+ * 
+ * Provides route protection and access control:
+ * - Verifies JWT tokens from request headers
+ * - Attaches authenticated user to request object
+ * - Implements role-based access control (admin vs regular users)
+ * - Handles authentication errors with appropriate responses
+ * 
+ * Used by protected routes to ensure only authenticated and
+ * authorized users can access specific endpoints.
+ */
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 

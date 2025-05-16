@@ -1,3 +1,16 @@
+/**
+ * API Client Module
+ * 
+ * Centralizes all API calls to the backend server:
+ * - Authentication endpoints (login, register, logout)
+ * - Patient data management (create, update, fetch)
+ * - Appointment management (scheduling, cancellation, retrieval)
+ * - User profile operations
+ * 
+ * Implements error handling, authentication token management,
+ * and consistent request/response formatting.
+ */
+
 import api from './axios';
 
 // Auth API services
@@ -47,7 +60,22 @@ export const patientApi = {
   
   // Update an appointment
   updateAppointment: async (id: string, updateData: any) => {
-    return api.put(`/appointments/${id}`, updateData);
+    console.log(`Updating appointment with ID: ${id}`, updateData);
+    if (!id) {
+      throw new Error('Appointment ID is required');
+    }
+    
+    // Add more debugging
+    console.log(`Making PUT request to /appointments/${id}`);
+    
+    try {
+      const response = await api.put(`/appointments/${id}`, updateData);
+      console.log('Update appointment response:', response);
+      return response;
+    } catch (error) {
+      console.error('Error updating appointment:', error);
+      throw error;
+    }
   },
   
   // Delete an appointment
@@ -81,3 +109,6 @@ export default {
   auth: authApi,
   patient: patientApi
 }; 
+
+
+

@@ -1,3 +1,16 @@
+/**
+ * Medical Record Controller
+ * 
+ * Manages all medical record operations:
+ * - Creating new medical records
+ * - Retrieving records (all, by ID, by patient)
+ * - Updating medical record information
+ * - Deleting medical records
+ * - Handling attachments and documents
+ * 
+ * Implements proper access control to ensure only authorized
+ * personnel can access sensitive medical information.
+ */
 import MedicalRecord from '../models/MedicalRecord.js';
 
 // @desc    Create a new medical record

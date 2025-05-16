@@ -14,6 +14,7 @@ import Image from "next/image";
 import { useFormContext } from "@/context/formContext";
 import { useAuth } from "@/context/AuthContext";
 import { patientApi } from "@/lib/api";
+import { ModeToggle } from "@/components/mode"; // Import the ModeToggle component
 
 function AppointmentPage() {
     const router = useRouter();
@@ -74,93 +75,99 @@ function AppointmentPage() {
     };
 
     return (
-        <div className="w-full flex flex-col md:flex-row items-center  md:items-start justify-center">
-
-            <div className="w-full md:w-1/2 px-6 min-h-screen flex flex-col items-center justify-center">
-
-                <section className="text-start w-full max-w-[600px]">
-                    <h2 className="text-xl mb-2">Hello!!</h2>
-                    <p className="text-gray-700 mb-4 dark:text-gray-300">Get started with Appointments.</p>
+        <div className="flex flex-col md:flex-row">
+            <div className="w-full lg:w-1/2 p-6 md:p-12">
+                <section>
+                    {/* Add a header with the theme toggle */}
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-xl font-bold">Schedule Appointment</h1>
+                        <ModeToggle />
+                    </div>
                     
-                    {error && (
-                        <div className="bg-red-100 text-red-800 p-3 rounded-md mb-4">
-                            {error}
-                        </div>
-                    )}
-                    
-                    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="fullname" className="mb-1 text-gray-700 dark:text-gray-300 text-md block">
-                                Full Name:
-                            </label>
-                            <div className="flex items-center border px-3 py-1  rounded-md focus-within:ring-1 focus-within:ring-gray-50">
-                                <span className="flex items-center justify-center  text-gray-400">
-                                    <LuSquarePen className="w-4 h-4" />
-                                </span>
-                                <Input id="fullname" type="text"
-                                    placeholder="Enter your name" 
-                                    value={appointmentData.fullname}
-                                    onChange={handleChange}
-                                    required/>
+                    <section className="text-start w-full max-w-[600px]">
+                        <h2 className="text-xl mb-2">Hello!!</h2>
+                        <p className="text-gray-700 mb-4 dark:text-gray-300">Get started with Appointments.</p>
+                        
+                        {error && (
+                            <div className="bg-red-100 text-red-800 p-3 rounded-md mb-4">
+                                {error}
                             </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="reason" className="mb-1 text-gray-700 dark:text-gray-300 text-md block">
-                                Reason for appointment:
-                            </label>
-                            <div className="flex items-center border px-3 py-1  rounded-md focus-within:ring-1 focus-within:ring-gray-50">
-                                <span className="flex items-center justify-center text-gray-400">
-                                    <LuChartBarIncreasing className="w-4 h-4" />
-                                </span>
-                                <Input id="reason" type="text"
-                                    placeholder="Enter your reason" 
-                                    value={appointmentData.reason}
-                                    onChange={handleChange}
-                                    required/>
+                        )}
+                        
+                        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+                            <div>
+                                <label htmlFor="fullname" className="mb-1 text-gray-700 dark:text-gray-300 text-md block">
+                                    Full Name:
+                                </label>
+                                <div className="flex items-center border px-3 py-1  rounded-md focus-within:ring-1 focus-within:ring-gray-50">
+                                    <span className="flex items-center justify-center  text-gray-400">
+                                        <LuSquarePen className="w-4 h-4" />
+                                    </span>
+                                    <Input id="fullname" type="text"
+                                        placeholder="Enter your name" 
+                                        value={appointmentData.fullname}
+                                        onChange={handleChange}
+                                        required/>
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <label htmlFor="additionalComments" className="mb-1 text-gray-700 dark:text-gray-300 text-md block">
-                                Additional comments:
-                            </label>
-                            <div className="flex items-center border px-3 py-1  rounded-md focus-within:ring-1 focus-within:ring-gray-50">
-                                <span className="flex items-center justify-center text-gray-400">
-                                    <MdOutlineModeComment className="w-4 h-4" />
-                                </span>
-                                <Input id="additionalComments" type="text"
-                                    placeholder="Enter your comments" 
-                                    value={appointmentData.additionalComments}
-                                    onChange={handleChange}/>
+                            <div>
+                                <label htmlFor="reason" className="mb-1 text-gray-700 dark:text-gray-300 text-md block">
+                                    Reason for appointment:
+                                </label>
+                                <div className="flex items-center border px-3 py-1  rounded-md focus-within:ring-1 focus-within:ring-gray-50">
+                                    <span className="flex items-center justify-center text-gray-400">
+                                        <LuChartBarIncreasing className="w-4 h-4" />
+                                    </span>
+                                    <Input id="reason" type="text"
+                                        placeholder="Enter your reason" 
+                                        value={appointmentData.reason}
+                                        onChange={handleChange}
+                                        required/>
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <label htmlFor="appointmentDate" className="mb-1 text-gray-700 dark:text-gray-300 text-md block">
-                                Select Date:
-                            </label>
-                            <div className="flex items-center border px-3 py-1  rounded-md focus-within:ring-1 focus-within:ring-gray-50">
-                                <span className="flex items-center justify-center text-gray-400">
-                                    <LuCalendarDays className="w-4 h-4" />
-                                </span>
-                                <Input id="appointmentDate" type="date"
-                                    value={appointmentData.appointmentDate}
-                                    onChange={handleChange}
-                                    required
-                                />
+                            <div>
+                                <label htmlFor="additionalComments" className="mb-1 text-gray-700 dark:text-gray-300 text-md block">
+                                    Additional comments:
+                                </label>
+                                <div className="flex items-center border px-3 py-1  rounded-md focus-within:ring-1 focus-within:ring-gray-50">
+                                    <span className="flex items-center justify-center text-gray-400">
+                                        <MdOutlineModeComment className="w-4 h-4" />
+                                    </span>
+                                    <Input id="additionalComments" type="text"
+                                        placeholder="Enter your comments" 
+                                        value={appointmentData.additionalComments}
+                                        onChange={handleChange}/>
+                                </div>
                             </div>
-                        </div>
 
-                        <Button
-                            type="submit"
-                            variant="default"
-                            className="w-full font-semibold cursor-pointer py-5 sm:py-6 rounded-md transition-all mt-3"
-                            disabled={loading}
-                        >
-                            {loading ? "Submitting..." : "Submit and Continue"}
-                        </Button>
-                    </form>
+                            <div>
+                                <label htmlFor="appointmentDate" className="mb-1 text-gray-700 dark:text-gray-300 text-md block">
+                                    Select Date:
+                                </label>
+                                <div className="flex items-center border px-3 py-1  rounded-md focus-within:ring-1 focus-within:ring-gray-50">
+                                    <span className="flex items-center justify-center text-gray-400">
+                                        <LuCalendarDays className="w-4 h-4" />
+                                    </span>
+                                    <Input id="appointmentDate" type="date"
+                                        value={appointmentData.appointmentDate}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                variant="default"
+                                className="w-full font-semibold cursor-pointer py-5 sm:py-6 rounded-md transition-all mt-3"
+                                disabled={loading}
+                            >
+                                {loading ? "Submitting..." : "Submit and Continue"}
+                            </Button>
+                        </form>
+                    </section>
                 </section>
             </div>
             <div className="hidden md:block lg:w-1/2">

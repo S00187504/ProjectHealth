@@ -9,6 +9,17 @@ import { Button } from "@/components/ui/button"
 import { RefreshCw } from "lucide-react"
 import { patientApi } from "@/lib/api"
 
+/**
+ * Dashboard Page
+ * 
+ * Main administrative interface showing:
+ * - KPI cards with appointment statistics
+ * - Appointments table with filtering and sorting
+ * - Refresh functionality to update data
+ * - Patient details modal for viewing patient information
+ * 
+ * This page is restricted to admin users through middleware authentication.
+ */
 export default function DashboardPage() {
   const router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -150,3 +161,5 @@ export default function DashboardPage() {
     </div>
   )
 }
+
+

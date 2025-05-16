@@ -1,3 +1,16 @@
+/**
+ * User Controller
+ * 
+ * Handles all user-related operations:
+ * - User authentication (login)
+ * - User registration with password hashing
+ * - Profile retrieval and updates
+ * - Password reset functionality
+ * - User role management
+ * 
+ * Each function corresponds to a specific API endpoint and implements
+ * the business logic for that operation, including validation and error handling.
+ */
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import generateToken from '../utils/generateToken.js';

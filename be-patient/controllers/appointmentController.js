@@ -1,3 +1,16 @@
+/**
+ * Appointment Controller
+ * 
+ * Manages all appointment-related operations:
+ * - Creating new appointments
+ * - Retrieving appointments (all, by ID, by patient)
+ * - Updating appointment details and status
+ * - Cancelling appointments
+ * - Filtering and sorting appointment data
+ * 
+ * Implements business logic for appointment management with proper
+ * validation, error handling, and database interactions.
+ */
 import Appointment from '../models/Appointment.js';
 
 // @desc    Create a new appointment

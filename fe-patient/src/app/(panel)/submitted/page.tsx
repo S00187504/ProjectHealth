@@ -1,15 +1,28 @@
+/**
+ * Submission Confirmation Page
+ * 
+ * Displays after successful form submission (appointment booking or patient registration).
+ * Features:
+ * - Success message with confirmation details
+ * - Navigation options to return to dashboard or make another appointment
+ * - Animated success indicator for visual feedback
+ * 
+ * This page serves as a final step in form submission workflows.
+ */
 "use client"
 import React, { useEffect, useState } from 'react'
 import { GoVerified } from "react-icons/go";
+import { MdLogout } from "react-icons/md"; // Import logout icon
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { patientApi } from '@/lib/api';
 import { Appointment } from '../dashboard/appointment.interface';
+import { ModeToggle } from '@/components/mode'; // Import the ModeToggle component
 
 function Submitted() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth(); // Get logout function from AuthContext
   const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +76,20 @@ function Submitted() {
 
   return (
     <div className='min-h-screen px-6 py-10'>
+      {/* Header with logout button and theme toggle */}
+      <div className="flex justify-between items-center mb-6">
+        <ModeToggle />
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={logout}
+          className="flex items-center gap-2"
+        >
+          <MdLogout className="w-4 h-4" />
+          Logout
+        </Button>
+      </div>
+      
       <div className='flex flex-col gap-5 items-center text-center mb-10'>
         <GoVerified className='text-green-400' size={60} />
         <h1 className='text-3xl px-4 text-gray-700 dark:text-gray-300'>Your appointment request has been<br /><span className='text-green-400'>successfully submitted.</span></h1>

@@ -80,6 +80,18 @@ interface AppointmentsTableProps {
     }
   }
   
+  /**
+   * Appointments Table Component
+   * 
+   * Displays and manages appointment data in tabular format:
+   * - Sortable columns for date, patient, and status
+   * - Filtering by appointment status (scheduled, completed, cancelled)
+   * - Action buttons for viewing details, rescheduling, and cancellation
+   * - Pagination for handling large datasets
+   * - Responsive design that adapts to different screen sizes
+   * 
+   * Used primarily in the dashboard for appointment management.
+   */
   export default function AppointmentsTable({ appointments }: AppointmentsTableProps) {
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false)
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false)
@@ -540,3 +552,4 @@ interface AppointmentsTableProps {
       </div>
     )
   }
+

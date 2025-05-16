@@ -36,8 +36,19 @@ export function useAuth() {
   return context;
 }
 
-// Provider component
-export function AuthProvider({ children }: { children: ReactNode }) {
+/**
+ * Authentication Context
+ * 
+ * Provides authentication state and methods throughout the application:
+ * - Current user information and authentication status
+ * - Login functionality with credential validation
+ * - Logout functionality with state cleanup
+ * - Registration for new users
+ * - Loading and error states for authentication operations
+ * 
+ * Uses React Context API to make authentication available to all components.
+ */
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

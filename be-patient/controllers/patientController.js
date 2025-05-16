@@ -1,3 +1,16 @@
+/**
+ * Patient Controller
+ * 
+ * Handles all patient-related operations:
+ * - Creating new patient records
+ * - Retrieving patient information (all, by ID, by email)
+ * - Updating patient details
+ * - Deleting patient records
+ * - Managing patient medical information
+ * 
+ * Implements comprehensive validation and error handling for
+ * all patient data operations.
+ */
 import Patient from '../models/Patient.js';
 
 // @desc    Create a new patient

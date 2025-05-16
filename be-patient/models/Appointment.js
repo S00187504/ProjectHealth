@@ -1,3 +1,16 @@
+/**
+ * Appointment Model
+ * 
+ * Defines the schema for appointment data:
+ * - Patient and doctor references
+ * - Appointment date and time
+ * - Appointment type and reason
+ * - Status tracking (scheduled, completed, cancelled)
+ * - Online/in-person designation
+ * 
+ * Includes timestamps for creation and updates, and
+ * references to related models (Patient, User).
+ */
 import mongoose from 'mongoose';
 
 const appointmentSchema = mongoose.Schema(

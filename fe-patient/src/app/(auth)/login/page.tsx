@@ -10,6 +10,16 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
+/**
+ * Login Page
+ * 
+ * Handles user authentication with:
+ * - Email/password login form
+ * - Form validation
+ * - Error handling
+ * - Admin credential option for demonstration
+ * - Redirection based on user role after successful login
+ */
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +52,7 @@ const LoginPage = () => {
       </div>
       <div className="w-full md:w-1/2 px-6 md:px-28 py-10 rounded-lg flex flex-col justify-center">
         <header>
-          <h1 className="text-2xl text-center md:text-left">LOGO</h1>
+          <h1 className="text-2xl text-center md:text-left">Practice Manager</h1>
         </header>
 
         <section className="mt-30 md:mt-6 text-center md:text-left">

@@ -10,6 +10,18 @@ interface ProvidersProps {
   children: ReactNode;
 }
 
+/**
+ * Global Providers Component
+ * 
+ * Centralizes all context providers for the application:
+ * - ThemeProvider: Manages dark/light mode with system preference detection
+ * - AuthProvider: Handles user authentication state and methods
+ * - DashboardProvider: Provides dashboard-specific state and data
+ * - FormProvider: Manages multi-step form state across components
+ * 
+ * This component wraps the entire application to ensure all contexts
+ * are available throughout the component tree.
+ */
 export default function Providers({ children }: ProvidersProps) {
   return (
     <ThemeProvider
