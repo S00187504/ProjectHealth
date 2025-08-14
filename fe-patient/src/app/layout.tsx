@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Providers from "@/providers";
+import type { Metadata } from 'next';
+import './globals.css';
+import Providers from '@/providers';
 
 /**
  * Root Layout
- * 
+ *
  * This is the main layout wrapper for the entire application.
  * It includes the Providers component which sets up:
  * - Theme provider for dark/light mode
@@ -12,8 +12,8 @@ import Providers from "@/providers";
  * - Other global contexts and providers
  */
 export const metadata: Metadata = {
-  title: "Patient Portal",
-  description: "Patient Management System",
+  title: 'Patient Portal',
+  description: 'Patient Management System',
 };
 
 export default function RootLayout({
@@ -22,11 +22,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

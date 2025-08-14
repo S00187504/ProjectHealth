@@ -1,29 +1,29 @@
-"use client"
-import { useEffect, useState, useCallback } from "react"
-import DashboardHeader from "./dashboardHeader/dashboardHeader"
-import KpiCards from "./kpiCards/kpiCards"
-import AppointmentsTable from "./appointmentsTable/appointmentsTable"
-import { useRouter } from "next/navigation"
-import PatientDetailsModal from "./patientDetailsModal/patientDetailsModal"
-import { Button } from "@/components/ui/button"
-import { RefreshCw } from "lucide-react"
-import { patientApi } from "@/lib/api"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+import { useEffect, useState, useCallback } from 'react';
+import DashboardHeader from './dashboardHeader/dashboardHeader';
+import KpiCards from './kpiCards/kpiCards';
+import AppointmentsTable from './appointmentsTable/appointmentsTable';
+import PatientDetailsModal from './patientDetailsModal/patientDetailsModal';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
+import { patientApi } from '@/lib/api';
 
 /**
  * Dashboard Page
- * 
+ *
  * Main administrative interface showing:
  * - KPI cards with appointment statistics
  * - Appointments table with filtering and sorting
  * - Refresh functionality to update data
  * - Patient details modal for viewing patient information
- * 
+ *
  * This page is restricted to admin users through middleware authentication.
  */
 export default function DashboardPage() {
-  const router = useRouter();
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [isPatientDetailsModalOpen, setIsPatientDetailsModalOpen] = useState(false);
+  const [isPatientDetailsModalOpen, setIsPatientDetailsModalOpen] =
+    useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,54 +32,23 @@ export default function DashboardPage() {
   const loadInitialData = useCallback(async () => {
     // Prevent loading if already loaded or currently loading
     if (dataLoaded || loading) return;
-    
+
     try {
       setLoading(true);
-      console.log("Dashboard mounted, loading data directly");
-      
-      // Load appointment data directly from the public test endpoint
-      const response = await patientApi.getPublicAppointments();
-      if (response && response.data && response.data.appointments) {
-        // Transform backend appointments to the format expected by the components
-        const formattedAppointments = response.data.appointments.map((appt: any) => {
-          // Parse the appointment date if available
-          let formattedDate = "No date";
-          try {
-            if (appt.appointmentDate) {
-              const dateObj = new Date(appt.appointmentDate);
-              if (!isNaN(dateObj.getTime())) {
-                formattedDate = dateObj.toLocaleDateString();
-              }
-            }
-          } catch (error) {
-            console.warn("Error parsing date:", error);
-          }
+      console.log('Dashboard mounted, loading data directly');
 
-          return {
-            id: appt._id,
-            patient: appt.patient?.fullname || appt.patient?.name || "Unknown Patient",
-            patientId: appt.patient?._id,
-            date: formattedDate,
-            time: appt.appointmentTime || "No time",
-            status: appt.status || "Unknown",
-            doctor: appt.doctor?.fullname || appt.doctor?.name || "Unknown Doctor",
-            reason: appt.reason || "",
-            type: appt.appointmentType || "Standard",
-            isOnline: Boolean(appt.isOnline),
-            meetingLink: appt.meetingLink || "",
-            notes: appt.notes || ""
-          };
-        });
-        
-        setAppointments(formattedAppointments);
-        console.log(`Loaded ${formattedAppointments.length} appointments`);
+      // Load appointment data directly from the public test endpoint
+      const response = await patientApi.getAppointments();
+      console.log('response.data', response.data);
+      if (response && response.data) {
+        setAppointments(response.data);
       }
-      
+
       // Mark data as loaded to prevent repeated API calls
       setDataLoaded(true);
     } catch (err) {
-      console.error("Error loading dashboard data:", err);
-      setError("Failed to load appointments. Please try again later.");
+      console.error('Error loading dashboard data:', err);
+      setError('Failed to load appointments. Please try again later.');
       // Don't set dataLoaded to true on error to allow retrying
     } finally {
       setLoading(false);
@@ -93,7 +62,7 @@ export default function DashboardPage() {
 
   // Function to manually retry loading data if needed
   const handleRetry = () => {
-    console.log("Manually refreshing data...");
+    console.log('Manually refreshing data...');
     setDataLoaded(false); // Reset the loaded state to trigger a new fetch
     loadInitialData(); // Force reload
   };
@@ -105,19 +74,19 @@ export default function DashboardPage() {
         <div className="mb-6 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold mb-1">Dashboard</h1>
-            <p className="text-gray-400">
-              Appointment Management System
-            </p>
+            <p className="text-gray-400">Appointment Management System</p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              onClick={handleRetry} 
-              variant="outline" 
-              size="sm" 
+            <Button
+              onClick={handleRetry}
+              variant="outline"
+              size="sm"
               className="flex items-center gap-2"
               disabled={loading}
             >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+              />
               Refresh Data
             </Button>
           </div>
@@ -142,24 +111,28 @@ export default function DashboardPage() {
             ) : (
               <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md p-4 mb-6">
                 <p className="font-medium">No appointments found</p>
-                <p className="text-sm">There are no appointments in the system. Try refreshing the data.</p>
+                <p className="text-sm">
+                  There are no appointments in the system. Try refreshing the
+                  data.
+                </p>
               </div>
             )}
 
             <div className="mt-10">
-              <AppointmentsTable appointments={appointments || []} />
+              <AppointmentsTable
+                appointments={appointments || []}
+                setAppointments={setAppointments}
+              />
             </div>
           </>
         )}
-        
+
         {/* Patient Details Modal */}
-        <PatientDetailsModal 
+        <PatientDetailsModal
           isOpen={isPatientDetailsModalOpen}
           onClose={() => setIsPatientDetailsModalOpen(false)}
         />
       </main>
     </div>
-  )
+  );
 }
-
-

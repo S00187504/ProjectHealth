@@ -1,13 +1,13 @@
 /**
  * Appointment Model
- * 
+ *
  * Defines the schema for appointment data:
  * - Patient and doctor references
  * - Appointment date and time
  * - Appointment type and reason
  * - Status tracking (scheduled, completed, cancelled)
  * - Online/in-person designation
- * 
+ *
  * Includes timestamps for creation and updates, and
  * references to related models (Patient, User).
  */
@@ -17,7 +17,7 @@ const appointmentSchema = mongoose.Schema(
   {
     patient: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Patient',
+      ref: 'User',
       required: true,
     },
     appointmentDate: {
@@ -30,7 +30,14 @@ const appointmentSchema = mongoose.Schema(
     },
     appointmentType: {
       type: String,
-      enum: ['Consultation', 'Follow-up', 'Emergency', 'Regular Checkup', 'Other'],
+      enum: [
+        'Regular',
+        'Consultation',
+        'Follow-up',
+        'Emergency',
+        'Specialized',
+        'Other',
+      ],
       default: 'Consultation',
     },
     reason: {
@@ -68,4 +75,4 @@ const appointmentSchema = mongoose.Schema(
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
 
-export default Appointment; 
+export default Appointment;

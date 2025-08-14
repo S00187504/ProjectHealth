@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState } from "react";
-import { LuSquarePen } from "react-icons/lu";
-import { GoMail } from "react-icons/go";
-import { MdOutlineLock, MdOutlinePhone } from "react-icons/md";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import Image from "next/image";
-import { useAuth } from "@/context/AuthContext";
+import React, { useState } from 'react';
+import { LuSquarePen } from 'react-icons/lu';
+import { GoMail } from 'react-icons/go';
+import { MdOutlineLock, MdOutlinePhone } from 'react-icons/md';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 
 const Signup = () => {
   const [fullname, setFullname] = useState('');
@@ -33,7 +33,9 @@ const Signup = () => {
       <div className="w-full md:w-1/2 px-6 min-h-screen flex flex-col items-center justify-center">
         <section className="text-start w-full max-w-[600px]">
           <h2 className="text-xl mb-2">Sign up</h2>
-          <p className="text-gray-700 mb-4 dark:text-gray-300">Get started with Appointments.</p>
+          <p className="text-gray-700 mb-4 dark:text-gray-300">
+            Get started with Appointments.
+          </p>
 
           {error && (
             <div className="bg-red-100 text-red-800 p-3 rounded-md mb-4">
@@ -43,7 +45,10 @@ const Signup = () => {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label htmlFor="fullname" className="mb-1 text-gray-700 dark:text-gray-300 text-sm block">
+              <label
+                htmlFor="fullname"
+                className="mb-1 text-gray-700 dark:text-gray-300 text-sm block"
+              >
                 Full Name:
               </label>
               <div className="flex items-center border px-3 py-1 rounded-md focus-within:ring-1 focus-within:ring-gray-50">
@@ -63,7 +68,10 @@ const Signup = () => {
 
             <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1">
-                <label htmlFor="email" className="mb-1 text-gray-700 dark:text-gray-300 text-sm block">
+                <label
+                  htmlFor="email"
+                  className="mb-1 text-gray-700 dark:text-gray-300 text-sm block"
+                >
                   Email Address:
                 </label>
                 <div className="flex items-center border px-3 py-1 rounded-md focus-within:ring-1 focus-within:ring-gray-50">
@@ -82,7 +90,10 @@ const Signup = () => {
               </div>
 
               <div className="flex-1">
-                <label htmlFor="password" className="mb-1 text-gray-700 dark:text-gray-300 text-sm block">
+                <label
+                  htmlFor="password"
+                  className="mb-1 text-gray-700 dark:text-gray-300 text-sm block"
+                >
                   Password:
                 </label>
                 <div className="flex items-center border px-3 py-1 rounded-md focus-within:ring-1 focus-within:ring-gray-50">
@@ -102,7 +113,10 @@ const Signup = () => {
             </div>
 
             <div>
-              <label htmlFor="phone" className="mb-1 text-gray-700 dark:text-gray-300 text-sm block">
+              <label
+                htmlFor="phone"
+                className="mb-1 text-gray-700 dark:text-gray-300 text-sm block"
+              >
                 Phone Number:
               </label>
               <div className="flex items-center border px-3 py-1 rounded-md focus-within:ring-1 focus-within:ring-gray-50">
@@ -128,7 +142,7 @@ const Signup = () => {
             >
               {loading ? 'Signing Up...' : 'Sign Up'}
             </Button>
-            
+
             <p className="text-center mt-4 text-gray-700 dark:text-gray-300">
               Already have an account?{' '}
               <Link href="/login" className="text-green-600 hover:underline">
@@ -138,17 +152,19 @@ const Signup = () => {
           </form>
         </section>
       </div>
-      <div className="w-full md:w-1/2 overflow-hidden h-screen justify-center hidden lg:block">
-        <Image
-          height={400}
-          width={400}
-          className="w-full max-h-[400px] md:max-h-none object-cover"
-          src="/doctor.jpeg"
-          alt="Doctor"
-        />
+      <div className="w-full md:w-1/2 p-8 flex justify-center">
+        <div className="relative w-full max-w-md aspect-square">
+          <Image
+            src="/doctor.jpeg"
+            alt="Healthcare Professional"
+            fill
+            className="object-cover rounded-lg shadow-xl"
+            priority
+          />
+        </div>
       </div>
     </div>
   );
 };
 
-export default Signup; 
+export default Signup;

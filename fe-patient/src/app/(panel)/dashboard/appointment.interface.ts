@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface Appointment {
-    id: string
-    patient: string
-    date: string
-    time?: string
+  id: string
+  _id:string
+    patient: any
+    appointmentDate: string
+    appointmentTime?: string
     status: string
-    doctor: string
+    doctor: any
     reason?: string
     type?: string
     isOnline?: boolean

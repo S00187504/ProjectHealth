@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * API Client Module
  * 
@@ -104,10 +105,26 @@ export const patientApi = {
   }
 };
 
+// Doctor API services
+export const doctorApi = {
+  // Get all doctors (public)
+  getAllDoctors: async () => {
+    return api.get('/users/doctors');
+  },
+};
+
+export const patientPublicApi = {
+  getAllPatients: async () => {
+    return api.get('/users/patients');
+  },
+};
+
 // Export all API services
 export default {
   auth: authApi,
-  patient: patientApi
+  patient: patientApi,
+  doctor: doctorApi,
+  patientPublic: patientPublicApi,
 }; 
 
 

@@ -1,18 +1,19 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
-import React, { useState } from "react";
-import { LuSquarePen } from "react-icons/lu";
-import { GoMail } from "react-icons/go";
-import { MdOutlineLock, MdOutlinePhone } from "react-icons/md";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import React, { useState } from 'react';
+// import { LuSquarePen } from 'react-icons/lu';
+import { GoMail } from 'react-icons/go';
+import { MdOutlineLock } from 'react-icons/md';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import Image from 'next/image';
 
 /**
  * Login Page
- * 
+ *
  * Handles user authentication with:
  * - Email/password login form
  * - Form validation
@@ -23,9 +24,9 @@ import { useRouter } from "next/navigation";
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
+  // const [isAdmin, setIsAdmin] = useState(false);
   const { login, loading, error } = useAuth();
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,20 +40,30 @@ const LoginPage = () => {
     }
   };
 
-  const setAdminCredentials = () => {
-    setEmail('admin@example.com');
-    setPassword('admin123');
-    setIsAdmin(true);
-  };
+  // const setAdminCredentials = () => {
+  //   setEmail('admin@example.com');
+  //   setPassword('admin123');
+  //   setIsAdmin(true);
+  // };
 
   return (
     <div className="w-full flex">
-      <div className="w-1/2 hidden md:block overflow-hidden">
-        <img className="w-full" src="doctor.jpeg" alt="" />
+      <div className="w-full md:w-1/2 p-8 flex justify-center">
+        <div className="relative w-full max-w-md aspect-square">
+          <Image
+            src="/doctor.jpeg"
+            alt="Healthcare Professional"
+            fill
+            className="object-cover rounded-lg shadow-xl"
+            priority
+          />
+        </div>
       </div>
       <div className="w-full md:w-1/2 px-6 md:px-28 py-10 rounded-lg flex flex-col justify-center">
         <header>
-          <h1 className="text-2xl text-center md:text-left">Practice Manager</h1>
+          <h1 className="text-2xl text-center md:text-left">
+            Practice Manager
+          </h1>
         </header>
 
         <section className="mt-30 md:mt-6 text-center md:text-left">
@@ -68,7 +79,10 @@ const LoginPage = () => {
               </div>
             )}
             <div>
-              <label htmlFor="email" className="mb-1 text-gray-700 dark:text-gray-300 text-sm block">
+              <label
+                htmlFor="email"
+                className="mb-1 text-gray-700 dark:text-gray-300 text-sm block"
+              >
                 Email Address:
               </label>
               <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-green-300">
@@ -87,7 +101,10 @@ const LoginPage = () => {
               </div>
             </div>
             <div>
-              <label htmlFor="password" className="mb-1 text-gray-700 dark:text-gray-300 text-sm block">
+              <label
+                htmlFor="password"
+                className="mb-1 text-gray-700 dark:text-gray-300 text-sm block"
+              >
                 Password:
               </label>
               <div className="flex items-center border rounded-md focus-within:ring-2 focus-within:ring-green-300">
@@ -111,9 +128,9 @@ const LoginPage = () => {
               className="w-full mt-3 font-semibold cursor-pointer py-6 rounded-md transition-all"
               disabled={loading}
             >
-              {loading ? 'Logging in...' : `Login${isAdmin ? ' as Admin' : ''}`}
+              {loading ? 'Logging in...' : `Login`}
             </Button>
-            
+
             <div className="flex flex-col gap-2 mt-2">
               <p className="text-center text-gray-700 dark:text-gray-300">
                 Don't have an account?{' '}
@@ -121,8 +138,8 @@ const LoginPage = () => {
                   Sign up
                 </Link>
               </p>
-              
-              <div className="text-center mt-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
+
+              {/* <div className="text-center mt-2 p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                   <strong>Admin Access</strong>
                 </p>
@@ -138,7 +155,7 @@ const LoginPage = () => {
                 >
                   Use Admin Credentials
                 </Button>
-              </div>
+              </div> */}
             </div>
           </form>
         </section>
@@ -147,4 +164,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;

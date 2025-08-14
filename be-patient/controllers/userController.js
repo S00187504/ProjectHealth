@@ -1,13 +1,13 @@
 /**
  * User Controller
- * 
+ *
  * Handles all user-related operations:
  * - User authentication (login)
  * - User registration with password hashing
  * - Profile retrieval and updates
  * - Password reset functionality
  * - User role management
- * 
+ *
  * Each function corresponds to a specific API endpoint and implements
  * the business logic for that operation, including validation and error handling.
  */
@@ -102,4 +102,44 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-export { authUser, registerUser, getUserProfile }; 
+// @desc    Get all doctors
+// @route   GET /api/users/doctors
+// @access  Public
+const getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await User.find(
+      { isDoctor: true },
+      { fullname: 1, email: 1, _id: 1 } // only return necessary fields
+    );
+
+    res.json(doctors);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error fetching doctors' });
+  }
+};
+
+// @desc    Get all patients
+// @route   GET /api/users/patients
+// @access  Public
+const getAllPatients = async (req, res) => {
+  try {
+    const patients = await User.find(
+      { isDoctor: false }, // Only non-doctors (patients)
+      { fullname: 1, email: 1, phone: 1, _id: 1 } // Return only necessary fields
+    );
+
+    res.json(patients);
+  } catch (error) {
+    console.error('Error fetching patients:', error);
+    res.status(500).json({ message: 'Server error fetching patients' });
+  }
+};
+
+export {
+  authUser,
+  registerUser,
+  getUserProfile,
+  getAllDoctors,
+  getAllPatients,
+};
