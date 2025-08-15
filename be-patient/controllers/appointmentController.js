@@ -1,12 +1,14 @@
 /**
  * Appointment Controller
  *
+ *
  * Manages all appointment-related operations:
  * - Creating new appointments
  * - Retrieving appointments (all, by ID, by patient)
  * - Updating appointment details and status
  * - Cancelling appointments
  * - Filtering and sorting appointment data
+ *
  *
  * Implements business logic for appointment management with proper
  * validation, error handling, and database interactions.
@@ -27,8 +29,11 @@ const createAppointment = async (req, res) => {
       isOnline,
       doctor,
       notes,
+      doctor,
+      notes,
     } = req.body;
 
+    // ✅ Step 1: Create appointment
     // ✅ Step 1: Create appointment
     const appointment = await Appointment.create({
       patient,
@@ -40,8 +45,11 @@ const createAppointment = async (req, res) => {
       isOnline,
       doctor,
       notes,
+      doctor,
+      notes,
     });
 
+    if (!appointment) {
     if (!appointment) {
       res.status(400);
       throw new Error('Invalid appointment data');
@@ -53,7 +61,15 @@ const createAppointment = async (req, res) => {
       .populate('doctor', 'fullname email');
 
     res.status(201).json(populatedAppointment);
+
+    // ✅ Step 2: Populate immediately after creation
+    const populatedAppointment = await Appointment.findById(appointment._id)
+      .populate('patient', 'fullname email phone')
+      .populate('doctor', 'fullname email');
+
+    res.status(201).json(populatedAppointment);
   } catch (error) {
+    console.error('Error creating appointment:', error);
     console.error('Error creating appointment:', error);
     res.status(400).json({ message: error.message });
   }
@@ -95,14 +111,52 @@ const createAppointment = async (req, res) => {
 //     res.status(400).json({ message: error.message });
 //   }
 // };
+// const getAppointments = async (req, res) => {
+//   try {
+//     console.log('Getting all appointments as admin');
+
+//     // More detailed logging for debugging
+//     console.log('Admin user:', req.user._id);
+
+//     // Try to find all appointments with detailed patient and doctor info
+//     const appointments = await Appointment.find({})
+//       .populate('patient', 'fullname email phone')
+//       .populate('doctor', 'fullname email');
+
+//     console.log(`Found ${appointments.length} appointments`);
+
+//     // Log some details about each appointment
+//     appointments.forEach((apt, index) => {
+//       console.log(`Appointment ${index + 1}:`, {
+//         id: apt._id,
+//         date: apt.appointmentDate,
+//         patientRef: apt.patient,
+//         patientId: apt.patient?._id || 'No ID',
+//         patientName: apt.patient?.fullname || 'No Name',
+//         doctorName: apt.doctor?.fullname || 'Unassigned',
+//       });
+//     });
+
+//     // Always return a valid response, even if empty
+//     res.json(appointments);
+//   } catch (error) {
+//     console.error('Error getting appointments:', error);
+//     res.status(400).json({ message: error.message });
+//   }
+// };
 const getAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find({})
       .populate('patient', 'fullname email phone') // select only these fields
       .populate('doctor', 'fullname email'); // select only these fields
 
+      .populate('patient', 'fullname email phone') // select only these fields
+      .populate('doctor', 'fullname email'); // select only these fields
+
     res.json(appointments);
   } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ message: 'Server error fetching appointments' });
     console.error('Error fetching appointments:', error);
     res.status(500).json({ message: 'Server error fetching appointments' });
   }
@@ -115,8 +169,11 @@ const getMyAppointments = async (req, res) => {
   try {
     console.log('Getting appointments for user:', req.user._id);
 
+    console.log('Getting appointments for user:', req.user._id);
+
     // Find appointments associated with the current user (as patient)
     const appointments = await Appointment.find({ patient: req.user._id })
+      .populate('patient', 'fullname email phone')
       .populate('patient', 'fullname email phone')
       .populate('doctor', 'fullname email')
       .sort({ appointmentDate: 1 });
@@ -124,6 +181,28 @@ const getMyAppointments = async (req, res) => {
     // Always return a valid response, even if empty
     res.json(appointments);
   } catch (error) {
+    console.error('Error getting user appointments:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// @desc    Get doctor appointments
+// @route   GET /api/appointments/doctorappointments
+// @access  Private
+const getDoctorAppointments = async (req, res) => {
+  try {
+    console.log('Getting appointments for user:', req.user._id);
+
+    // Find appointments associated with the current user (as patient)
+    const appointments = await Appointment.find({ doctor: req.user._id })
+      .populate('patient', 'fullname email phone')
+      .populate('doctor', 'fullname email')
+      .sort({ appointmentDate: 1 });
+
+    // Always return a valid response, even if empty
+    res.json(appointments);
+  } catch (error) {
+    console.error('Error getting user appointments:', error);
     console.error('Error getting user appointments:', error);
     res.status(400).json({ message: error.message });
   }
@@ -164,6 +243,12 @@ const updateAppointment = async (req, res) => {
         req.body.appointmentTime || appointment.appointmentTime;
       appointment.appointmentType =
         req.body.appointmentType || appointment.appointmentType;
+      appointment.appointmentDate =
+        req.body.appointmentDate || appointment.appointmentDate;
+      appointment.appointmentTime =
+        req.body.appointmentTime || appointment.appointmentTime;
+      appointment.appointmentType =
+        req.body.appointmentType || appointment.appointmentType;
       appointment.reason = req.body.reason || appointment.reason;
       appointment.status = req.body.status || appointment.status;
       appointment.notes = req.body.notes || appointment.notes;
@@ -171,9 +256,18 @@ const updateAppointment = async (req, res) => {
         req.body.isOnline !== undefined
           ? req.body.isOnline
           : appointment.isOnline;
+      appointment.isOnline =
+        req.body.isOnline !== undefined
+          ? req.body.isOnline
+          : appointment.isOnline;
       appointment.meetingLink = req.body.meetingLink || appointment.meetingLink;
       appointment.doctor = req.body.doctor || appointment.doctor;
 
+      await appointment.save();
+      const populatedAppointment = await Appointment.findById(req.params.id)
+        .populate('patient', 'fullname email phone')
+        .populate('doctor', 'fullname email');
+      res.json(populatedAppointment);
       await appointment.save();
       const populatedAppointment = await Appointment.findById(req.params.id)
         .populate('patient', 'fullname email phone')
@@ -207,11 +301,42 @@ const deleteAppointment = async (req, res) => {
   }
 };
 
+// @desc    Check if a doctor has a conflicting appointment
+// @route   GET /api/appointments/conflict-check
+// @access  Private
+const checkDoctorConflict = async (req, res) => {
+  try {
+    const { doctor, date, time } = req.query;
+
+    if (!doctor || !date || !time) {
+      return res.status(400).json({ message: 'Missing required query parameters.' });
+    }
+
+    const conflict = await Appointment.findOne({
+      doctor,
+      appointmentDate: new Date(date),
+      appointmentTime: time,
+    });
+
+    if (conflict) {
+      return res.status(200).json({ available:false, message: 'This doctor is already booked at this time.' });
+    }
+
+    return res.json({ available: true });
+  } catch (error) {
+    console.error('Conflict check error:', error);
+    res.status(500).json({ message: 'Server error checking conflict.' });
+  }
+};
+
+
 export {
   createAppointment,
   getAppointments,
   getMyAppointments,
+  getDoctorAppointments,
   getAppointmentById,
   updateAppointment,
   deleteAppointment,
+  checkDoctorConflict
 };

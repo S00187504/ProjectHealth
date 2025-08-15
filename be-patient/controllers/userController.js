@@ -29,7 +29,8 @@ const authUser = async (req, res) => {
         _id: user._id,
         name: user.fullname,
         email: user.email,
-        isAdmin: user.isAdmin,
+        isAdmin: user.isAdmin,        
+        role: user.role, 
         token: generateToken(user._id),
       });
     } else {

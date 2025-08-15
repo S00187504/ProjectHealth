@@ -125,7 +125,9 @@ const getPatients = async (req, res) => {
 // @access  Private
 const getPatientById = async (req, res) => {
   try {
-    const patient = await Patient.findById(req.params.id);
+    const patient = await Patient.findOne({user:req.params.id});
+
+    console.log('patient',patient)
 
     if (patient) {
       res.json(patient);

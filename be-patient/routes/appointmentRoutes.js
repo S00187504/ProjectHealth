@@ -3,9 +3,11 @@ import {
   createAppointment,
   getAppointments,
   getMyAppointments,
+  getDoctorAppointments,
   getAppointmentById,
   updateAppointment,
-  deleteAppointment
+  deleteAppointment,
+  checkDoctorConflict
 } from '../controllers/appointmentController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -56,6 +58,8 @@ router.route('/')
   .get(protect, admin, getAppointments);
 
 router.route('/myappointments').get(protect, getMyAppointments);
+router.route('/doctorappointments').get(protect, getDoctorAppointments);
+router.route('/conflict-check').get(protect, checkDoctorConflict);
 
 router.route('/:id')
   .get(protect, getAppointmentById)
