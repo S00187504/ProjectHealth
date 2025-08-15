@@ -1,0 +1,149 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+import { useEffect, useState, useCallback } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
+import { patientApi } from '@/lib/api';
+import DashboardHeader from '../dashboardHeader/dashboardHeader';
+import KpiCards from '../kpiCards/kpiCards';
+import AppointmentsTable from '../appointmentsTable/appointmentsTable';
+import PatientDetailsModal from '../patientDetailsModal/patientDetailsModal';
+import { useAuth } from '@/context/AuthContext';
+
+/**
+ * Dashboard Page
+ *
+ * Main administrative interface showing:
+ * - KPI cards with appointment statistics
+ * - Appointments table with filtering and sorting
+ * - Refresh functionality to update data
+ * - Patient details modal for viewing patient information
+ *
+ * This page is restricted to admin users through middleware authentication.
+ */
+export default function AppointmentsPage() {
+  const { user } = useAuth();
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [isPatientDetailsModalOpen, setIsPatientDetailsModalOpen] =
+    useState(false);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load data without authentication
+  const loadInitialData = useCallback(async () => {
+  if (!user || !user.role) return; // 👈 prevent running too early
+  if (dataLoaded || loading) return;
+
+  try {
+    setLoading(true);
+    console.log('Dashboard mounted, loading data directly');
+    console.log('user', user);
+
+    let response;
+    if (user.role === "patient") {
+      response = await patientApi.getMyAppointments();
+    } else if (user.role === 'doctor') {
+      response = await patientApi.getDoctorAppointments();
+    } else if (user.role === 'admin') {
+      response = await patientApi.getAppointments();
+    }
+
+    console.log('response.data', response?.data);
+
+    if (response && response.data) {
+      setAppointments(response.data);
+    }
+
+    setDataLoaded(true);
+  } catch (err) {
+    console.error('Error loading dashboard data:', err);
+    setError('Failed to load appointments. Please try again later.');
+  } finally {
+    setLoading(false);
+  }
+}, [dataLoaded, loading, user]);
+
+
+  // Load data once when component mounts
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+
+  // Function to manually retry loading data if needed
+  const handleRetry = () => {
+    console.log('Manually refreshing data...');
+    setDataLoaded(false); // Reset the loaded state to trigger a new fetch
+    loadInitialData(); // Force reload
+  };
+
+  return (
+    <div className="container-fluid">
+      <DashboardHeader />
+      <main className="">
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-1">Dashboard</h1>
+            <p className="text-gray-400">Appointment Management System</p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleRetry}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              disabled={loading}
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}
+              />
+              Refresh Data
+            </Button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-800 rounded-md p-4 mb-6">
+            <p className="font-medium">Error Loading Data</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-10">
+            <p>Loading appointments...</p>
+          </div>
+        ) : (
+          <>
+            {/* Only render KpiCards if appointments array is not empty */}
+            {appointments && appointments.length > 0 ? (
+              <KpiCards appointments={appointments} />
+            ) : (
+              <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md p-4 mb-6">
+                <p className="font-medium">No appointments found</p>
+                <p className="text-sm">
+                  There are no appointments in the system. Try refreshing the
+                  data.
+                </p>
+              </div>
+            )}
+
+            <div className="mt-10">
+              <AppointmentsTable
+                appointments={appointments || []}
+                setAppointments={setAppointments}
+              />
+            </div>
+          </>
+        )}
+
+        {/* Patient Details Modal */}
+        <PatientDetailsModal
+          isOpen={isPatientDetailsModalOpen}
+          onClose={() => setIsPatientDetailsModalOpen(false)}
+        />
+      </main>
+    </div>
+  );
+}

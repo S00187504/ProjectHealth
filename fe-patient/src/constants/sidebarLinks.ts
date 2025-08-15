@@ -1,0 +1,19 @@
+// src/constants/sidebarLinks.ts
+export const SIDEBAR_LINKS = {
+  admin: [
+    { label: 'Dashboard', href: '/dashboard/admin-overview' },
+    { label: 'Patients', href: '/dashboard/patients' },
+    { label: 'Doctors', href: '/dashboard/doctors' },
+    { label: 'Appointments', href: '/dashboard/appointments' },
+  ],
+  doctor: [
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Patients', href: '/dashboard/patients' },
+    { label: 'Appointments', href: '/dashboard/appointments' },
+  ],
+  patient: [
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Appointments', href: '/dashboard/appointments' },
+    // { label: 'Update Biography', href: '/dashboard/biography' },
+  ],
+};

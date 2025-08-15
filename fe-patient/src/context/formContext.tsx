@@ -65,7 +65,7 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
 
-  // Load data from localStorage on initial mount
+  // Load data from localStorage on initial mount and clear if user changes
   useEffect(() => {
     const storedData = localStorage.getItem('patientFormData')
     if (storedData) {
@@ -79,7 +79,17 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
         console.error("Error parsing stored form data:", error)
       }
     }
-  }, [])
+  }, [user])
+
+  // Clear form data from localStorage and state when user changes (e.g., after signup/login)
+  useEffect(() => {
+    localStorage.removeItem('patientFormData');
+    setFormData({
+      consentTreatment: true,
+      acknowledgePrivacy: true,
+      consentDisclosure: false,
+    });
+  }, [user]);
 
   // Update form data function
   const updateFormData = (newData: Partial<FormDataType>) => {
@@ -109,7 +119,7 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
       
       // Ensure the form data is saved to localStorage
       localStorage.setItem('patientFormData', JSON.stringify(formData))
-      
+
       // Also save to backend
       const response = await axios.post('http://localhost:5000/api/patients', {
         userId: user._id,
@@ -119,7 +129,6 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
         address: formData.address,
         phone: formData.phone,
         occupation: formData.occupation,
-        
         // Medical data
         primaryPhysician: formData.physician,
         insuranceProvider: formData.insurance,
@@ -128,7 +137,6 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
         medications: formData.medications,
         medicalHistory: formData.history,
         familyHistory: formData.familyHistory,
-        
         // Identification
         identificationType: formData.identificationType,
         consents: {
@@ -141,8 +149,16 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       })
-      
+
       console.log("Form submitted and saved to backend:", response.data)
+
+      // Reset form data after successful submission
+      localStorage.removeItem('patientFormData');
+      setFormData({
+        consentTreatment: true,
+        acknowledgePrivacy: true,
+        consentDisclosure: false,
+      });
       
     } catch (err: any) {
       console.error("Error submitting patient data:", err)

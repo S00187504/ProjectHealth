@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useRef, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { patientApi } from '@/lib/api';
 import { useAuth } from './AuthContext';
-import { Appointment, BackendAppointment } from '@/app/(panel)/dashboard/appointment.interface';
+import { Appointment, BackendAppointment } from '@/app/panel/dashboard/appointment.interface';
 
 // Define patient interface
 export interface Patient {

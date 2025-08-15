@@ -1,64 +1,71 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-/**
- * Authentication Middleware
- * 
- * Handles route protection and role-based access control:
- * - Checks for valid authentication token in cookies
- * - Redirects unauthenticated users to login page
- * - Prevents authenticated users from accessing login/signup pages
- * - Enforces role-based restrictions (admin vs patient access)
- * - Allows public access to specified routes
- * 
- * This middleware runs on all routes matching the configured matcher pattern.
- */
+function decodeJwtPayload(jwt?: string | null) {
+  if (!jwt || !jwt.includes('.')) return null;
+  try {
+    const [, payload] = jwt.split('.');
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    // Edge runtime has atob
+    const json = atob(base64);
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
-  const user = request.cookies.get('user')?.value ? JSON.parse(request.cookies.get('user')?.value || '{}') : null;
+  const token = request.cookies.get('token')?.value || null;
+  const userCookie = request.cookies.get('user')?.value || null;
+
+  // Try JSON first; if it fails, try JWT decode
+  let user: any = null;
+  try {
+    user = userCookie ? JSON.parse(userCookie) : null;
+  } catch {
+    user = decodeJwtPayload(userCookie);
+  }
+
+  // Also allow role to come from the access token
+  const tokenPayload = decodeJwtPayload(token);
+  const role: string | undefined = user?.role ?? tokenPayload?.role;
+
   const path = request.nextUrl.pathname;
+  const publicPaths = ['/', '/login', '/signup', '/api'];
+  const isPublicPath = publicPaths.some(p => path === p || path.startsWith(p + '/'));
 
-  // Public paths that don't require authentication
-  const publicPaths = [
-    '/login',
-    '/signup',
-    '/',
-    '/api'
-  ];
-
-  // Check if the path is a public path
-  const isPublicPath = publicPaths.some(publicPath => 
-    path === publicPath || path.startsWith(publicPath + '/')
-  );
-
-  // If no token and trying to access protected route, redirect to login
+  // If no token and accessing protected path → login
   if (!token && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // If token exists and user is trying to access auth pages, redirect based on role
+  // Authenticated user trying to visit auth pages → dashboard
   if (token && (path === '/login' || path === '/signup')) {
-    if (user?.isAdmin) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    } else {
-      return NextResponse.redirect(new URL('/submitted', request.url));
-    }
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // Role-based access control
-  if (token && user) {
-    // Only admins can access dashboard
-    if (path.startsWith('/dashboard') && !user.isAdmin) {
-      return NextResponse.redirect(new URL('/submitted', request.url));
+  // Role-based restrictions (only if we have a role)
+  if (token && role) {
+    // /dashboard/doctors → admin only
+    if (path.startsWith('/dashboard/doctors') && role !== 'admin') {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
+    }
+    // /dashboard/patients → admin & doctor
+    if (path.startsWith('/dashboard/patients') && !['admin', 'doctor'].includes(role)) {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
+    }
+    // /dashboard/biography → patient only
+    if (path.startsWith('/dashboard/biography') && role !== 'patient') {
+      return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
 
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
   matcher: [
     '/((?!_next/static|_next/image|favicon.ico|.*\\.ico|.*\\.svg|.*\\.jpg|.*\\.png|.*\\.webp).*)',
   ],
-}; 
+};

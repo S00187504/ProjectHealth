@@ -1,16 +1,3 @@
-/**
- * Appointment Model
- *
- * Defines the schema for appointment data:
- * - Patient and doctor references
- * - Appointment date and time
- * - Appointment type and reason
- * - Status tracking (scheduled, completed, cancelled)
- * - Online/in-person designation
- *
- * Includes timestamps for creation and updates, and
- * references to related models (Patient, User).
- */
 import mongoose from 'mongoose';
 
 const appointmentSchema = mongoose.Schema(
@@ -24,8 +11,12 @@ const appointmentSchema = mongoose.Schema(
       type: Date,
       required: true,
     },
-    appointmentTime: {
-      type: String, // Stored as "10:00 AM", "2:30 PM", etc.
+    startTime: {
+      type: String, // e.g. "10:00 AM"
+      required: true,
+    },
+    endTime: {
+      type: String, // e.g. "10:30 AM"
       required: true,
     },
     appointmentType: {
@@ -61,10 +52,9 @@ const appointmentSchema = mongoose.Schema(
       type: String,
       default: '',
     },
-    // Doctor assigned to this appointment (if applicable)
     doctor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Assuming doctors are Users with isAdmin or isDoctor flag
+      ref: 'User',
       required: false,
     },
   },

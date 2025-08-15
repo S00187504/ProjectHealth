@@ -2,19 +2,43 @@
  * Appointment Controller
  *
  *
- * Manages all appointment-related operations:
- * - Creating new appointments
- * - Retrieving appointments (all, by ID, by patient)
- * - Updating appointment details and status
- * - Cancelling appointments
- * - Filtering and sorting appointment data
- *
- *
- * Implements business logic for appointment management with proper
- * validation, error handling, and database interactions.
+ * Uses startTime/endTime (e.g., "10:00 AM") instead of appointmentTime.
+ * Overlap rule: existing.start < new.end && existing.end > new.start
  */
 import Appointment from '../models/Appointment.js';
 
+/** -------- helpers -------- */
+const toMinutes = (t) => {
+  // "hh:mm AM/PM" -> minutes since midnight
+  // tolerant to lowercase/extra spaces
+  const m = t.trim().match(/^(\d{1,2}):(\d{2})\s*([APap][Mm])$/);
+  if (!m) return NaN;
+  let [ , hh, mm, ampm ] = m;
+  let h = parseInt(hh, 10) % 12;
+  const minutes = parseInt(mm, 10);
+  if (ampm.toUpperCase() === 'PM') h += 12;
+  return h * 60 + minutes;
+};
+
+const sameDayRange = (dateLike) => {
+  const d = new Date(dateLike);
+  const start = new Date(d); start.setHours(0, 0, 0, 0);
+  const end   = new Date(d); end.setHours(23, 59, 59, 999);
+  return { start, end };
+};
+
+const hasConflict = (existing, startTime, endTime) => {
+  const sNew = toMinutes(startTime);
+  const eNew = toMinutes(endTime);
+  if (isNaN(sNew) || isNaN(eNew)) return true; // treat invalid time as conflict
+  return existing.some(a => {
+    const sOld = toMinutes(a.startTime);
+    const eOld = toMinutes(a.endTime);
+    return sOld < eNew && eOld > sNew; // overlap
+  });
+};
+
+/** -------- create -------- */
 // @desc    Create a new appointment
 // @route   POST /api/appointments
 // @access  Private
@@ -23,51 +47,61 @@ const createAppointment = async (req, res) => {
     const {
       patient,
       appointmentDate,
-      appointmentTime,
+      startTime,
+      endTime,
       appointmentType,
       reason,
       isOnline,
       doctor,
       notes,
-      doctor,
-      notes,
+      meetingLink
     } = req.body;
 
-    // ✅ Step 1: Create appointment
-    // ✅ Step 1: Create appointment
+    // Basic validation
+    if (!patient || !appointmentDate || !startTime || !endTime || !doctor) {
+      return res.status(400).json({ message: 'patient, doctor, appointmentDate, startTime and endTime are required.' });
+    }
+    const sMin = toMinutes(startTime);
+    const eMin = toMinutes(endTime);
+    if (isNaN(sMin) || isNaN(eMin)) {
+      return res.status(400).json({ message: 'Invalid time format. Use "hh:mm AM/PM".' });
+    }
+    if (eMin <= sMin) {
+      return res.status(400).json({ message: 'endTime must be after startTime.' });
+    }
+
+    // Conflict check (same doctor, same day, non-cancelled)
+    const { start, end } = sameDayRange(appointmentDate);
+    const sameDayAppointments = await Appointment.find({
+      doctor,
+      status: { $ne: 'Cancelled' },
+      appointmentDate: { $gte: start, $lte: end }
+    }).select('startTime endTime');
+
+    if (hasConflict(sameDayAppointments, startTime, endTime)) {
+      return res.status(409).json({ message: 'Time slot already booked for this doctor.' });
+    }
+
+    // Create
     const appointment = await Appointment.create({
       patient,
       appointmentDate,
-      appointmentTime,
+      startTime,
+      endTime,
       appointmentType,
       reason,
       status: 'Scheduled',
       isOnline,
-      doctor,
-      notes,
+      meetingLink,
       doctor,
       notes,
     });
 
-    if (!appointment) {
-    if (!appointment) {
-      res.status(400);
-      throw new Error('Invalid appointment data');
-    }
-
-    // ✅ Step 2: Populate immediately after creation
-    const populatedAppointment = await Appointment.findById(appointment._id)
+    const populated = await Appointment.findById(appointment._id)
       .populate('patient', 'fullname email phone')
       .populate('doctor', 'fullname email');
 
-    res.status(201).json(populatedAppointment);
-
-    // ✅ Step 2: Populate immediately after creation
-    const populatedAppointment = await Appointment.findById(appointment._id)
-      .populate('patient', 'fullname email phone')
-      .populate('doctor', 'fullname email');
-
-    res.status(201).json(populatedAppointment);
+    res.status(201).json(populated);
   } catch (error) {
     console.error('Error creating appointment:', error);
     console.error('Error creating appointment:', error);
@@ -75,84 +109,12 @@ const createAppointment = async (req, res) => {
   }
 };
 
-// @desc    Get all appointments
-// @route   GET /api/appointments
-// @access  Private/Admin
-// const getAppointments = async (req, res) => {
-//   try {
-//     console.log('Getting all appointments as admin');
-
-//     // More detailed logging for debugging
-//     console.log('Admin user:', req.user._id);
-
-//     // Try to find all appointments with detailed patient and doctor info
-//     const appointments = await Appointment.find({})
-//       .populate('patient', 'fullname email phone')
-//       .populate('doctor', 'fullname email');
-
-//     console.log(`Found ${appointments.length} appointments`);
-
-//     // Log some details about each appointment
-//     appointments.forEach((apt, index) => {
-//       console.log(`Appointment ${index + 1}:`, {
-//         id: apt._id,
-//         date: apt.appointmentDate,
-//         patientRef: apt.patient,
-//         patientId: apt.patient?._id || 'No ID',
-//         patientName: apt.patient?.fullname || 'No Name',
-//         doctorName: apt.doctor?.fullname || 'Unassigned',
-//       });
-//     });
-
-//     // Always return a valid response, even if empty
-//     res.json(appointments);
-//   } catch (error) {
-//     console.error('Error getting appointments:', error);
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-// const getAppointments = async (req, res) => {
-//   try {
-//     console.log('Getting all appointments as admin');
-
-//     // More detailed logging for debugging
-//     console.log('Admin user:', req.user._id);
-
-//     // Try to find all appointments with detailed patient and doctor info
-//     const appointments = await Appointment.find({})
-//       .populate('patient', 'fullname email phone')
-//       .populate('doctor', 'fullname email');
-
-//     console.log(`Found ${appointments.length} appointments`);
-
-//     // Log some details about each appointment
-//     appointments.forEach((apt, index) => {
-//       console.log(`Appointment ${index + 1}:`, {
-//         id: apt._id,
-//         date: apt.appointmentDate,
-//         patientRef: apt.patient,
-//         patientId: apt.patient?._id || 'No ID',
-//         patientName: apt.patient?.fullname || 'No Name',
-//         doctorName: apt.doctor?.fullname || 'Unassigned',
-//       });
-//     });
-
-//     // Always return a valid response, even if empty
-//     res.json(appointments);
-//   } catch (error) {
-//     console.error('Error getting appointments:', error);
-//     res.status(400).json({ message: error.message });
-//   }
-// };
-const getAppointments = async (req, res) => {
+/** -------- list -------- */
+const getAppointments = async (_req, res) => {
   try {
     const appointments = await Appointment.find({})
-      .populate('patient', 'fullname email phone') // select only these fields
-      .populate('doctor', 'fullname email'); // select only these fields
-
-      .populate('patient', 'fullname email phone') // select only these fields
-      .populate('doctor', 'fullname email'); // select only these fields
-
+      .populate('patient', 'fullname email phone')
+      .populate('doctor', 'fullname email');
     res.json(appointments);
   } catch (error) {
     console.error('Error fetching appointments:', error);
@@ -162,23 +124,14 @@ const getAppointments = async (req, res) => {
   }
 };
 
-// @desc    Get user appointments
 // @route   GET /api/appointments/myappointments
-// @access  Private
 const getMyAppointments = async (req, res) => {
   try {
-    console.log('Getting appointments for user:', req.user._id);
-
-    console.log('Getting appointments for user:', req.user._id);
-
-    // Find appointments associated with the current user (as patient)
     const appointments = await Appointment.find({ patient: req.user._id })
       .populate('patient', 'fullname email phone')
       .populate('patient', 'fullname email phone')
       .populate('doctor', 'fullname email')
       .sort({ appointmentDate: 1 });
-
-    // Always return a valid response, even if empty
     res.json(appointments);
   } catch (error) {
     console.error('Error getting user appointments:', error);
@@ -186,149 +139,137 @@ const getMyAppointments = async (req, res) => {
   }
 };
 
-// @desc    Get doctor appointments
 // @route   GET /api/appointments/doctorappointments
-// @access  Private
 const getDoctorAppointments = async (req, res) => {
   try {
-    console.log('Getting appointments for user:', req.user._id);
-
-    // Find appointments associated with the current user (as patient)
     const appointments = await Appointment.find({ doctor: req.user._id })
       .populate('patient', 'fullname email phone')
       .populate('doctor', 'fullname email')
       .sort({ appointmentDate: 1 });
-
-    // Always return a valid response, even if empty
     res.json(appointments);
   } catch (error) {
-    console.error('Error getting user appointments:', error);
-    console.error('Error getting user appointments:', error);
+    console.error('Error getting doctor appointments:', error);
     res.status(400).json({ message: error.message });
   }
 };
 
-// @desc    Get appointment by ID
+/** -------- single -------- */
 // @route   GET /api/appointments/:id
-// @access  Private
 const getAppointmentById = async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id)
       .populate('patient', 'fullname email phone address')
       .populate('doctor', 'fullname email');
 
-    if (appointment) {
-      res.json(appointment);
-    } else {
-      res.status(404);
-      throw new Error('Appointment not found');
-    }
+    if (!appointment) return res.status(404).json({ message: 'Appointment not found' });
+    res.json(appointment);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// @desc    Update appointment
+/** -------- update -------- */
 // @route   PUT /api/appointments/:id
-// @access  Private
 const updateAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
+    if (!appointment) return res.status(404).json({ message: 'Appointment not found' });
 
-    if (appointment) {
-      appointment.patient = req.body.patient || appointment.patient;
-      appointment.appointmentDate =
-        req.body.appointmentDate || appointment.appointmentDate;
-      appointment.appointmentTime =
-        req.body.appointmentTime || appointment.appointmentTime;
-      appointment.appointmentType =
-        req.body.appointmentType || appointment.appointmentType;
-      appointment.appointmentDate =
-        req.body.appointmentDate || appointment.appointmentDate;
-      appointment.appointmentTime =
-        req.body.appointmentTime || appointment.appointmentTime;
-      appointment.appointmentType =
-        req.body.appointmentType || appointment.appointmentType;
-      appointment.reason = req.body.reason || appointment.reason;
-      appointment.status = req.body.status || appointment.status;
-      appointment.notes = req.body.notes || appointment.notes;
-      appointment.isOnline =
-        req.body.isOnline !== undefined
-          ? req.body.isOnline
-          : appointment.isOnline;
-      appointment.isOnline =
-        req.body.isOnline !== undefined
-          ? req.body.isOnline
-          : appointment.isOnline;
-      appointment.meetingLink = req.body.meetingLink || appointment.meetingLink;
-      appointment.doctor = req.body.doctor || appointment.doctor;
+    const next = {
+      patient: req.body.patient ?? appointment.patient,
+      appointmentDate: req.body.appointmentDate ?? appointment.appointmentDate,
+      startTime: req.body.startTime ?? appointment.startTime,
+      endTime: req.body.endTime ?? appointment.endTime,
+      appointmentType: req.body.appointmentType ?? appointment.appointmentType,
+      reason: req.body.reason ?? appointment.reason,
+      status: req.body.status ?? appointment.status,
+      notes: req.body.notes ?? appointment.notes,
+      isOnline: req.body.isOnline ?? appointment.isOnline,
+      meetingLink: req.body.meetingLink ?? appointment.meetingLink,
+      doctor: req.body.doctor ?? appointment.doctor,
+    };
 
-      await appointment.save();
-      const populatedAppointment = await Appointment.findById(req.params.id)
-        .populate('patient', 'fullname email phone')
-        .populate('doctor', 'fullname email');
-      res.json(populatedAppointment);
-      await appointment.save();
-      const populatedAppointment = await Appointment.findById(req.params.id)
-        .populate('patient', 'fullname email phone')
-        .populate('doctor', 'fullname email');
-      res.json(populatedAppointment);
-    } else {
-      res.status(404);
-      throw new Error('Appointment not found');
+    // Validate times if changed
+    const sMin = toMinutes(next.startTime);
+    const eMin = toMinutes(next.endTime);
+    if (isNaN(sMin) || isNaN(eMin)) {
+      return res.status(400).json({ message: 'Invalid time format. Use "hh:mm AM/PM".' });
     }
+    if (eMin <= sMin) {
+      return res.status(400).json({ message: 'endTime must be after startTime.' });
+    }
+
+    // Conflict check excluding current appointment
+    const { start, end } = sameDayRange(next.appointmentDate);
+    const sameDayAppointments = await Appointment.find({
+      _id: { $ne: appointment._id },
+      doctor: next.doctor,
+      status: { $ne: 'Cancelled' },
+      appointmentDate: { $gte: start, $lte: end }
+    }).select('startTime endTime');
+
+    if (hasConflict(sameDayAppointments, next.startTime, next.endTime)) {
+      return res.status(409).json({ message: 'Time slot already booked for this doctor.' });
+    }
+
+    Object.assign(appointment, next);
+    await appointment.save();
+
+    const populated = await Appointment.findById(appointment._id)
+      .populate('patient', 'fullname email phone')
+      .populate('doctor', 'fullname email');
+
+    res.json(populated);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-// @desc    Delete appointment
+/** -------- delete -------- */
 // @route   DELETE /api/appointments/:id
-// @access  Private/Admin
 const deleteAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
-
-    if (appointment) {
-      await appointment.deleteOne();
-      res.json({ message: 'Appointment removed' });
-    } else {
-      res.status(404);
-      throw new Error('Appointment not found');
-    }
+    if (!appointment) return res.status(404).json({ message: 'Appointment not found' });
+    await appointment.deleteOne();
+    res.json({ message: 'Appointment removed' });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
+/** -------- conflict check API -------- */
 // @desc    Check if a doctor has a conflicting appointment
-// @route   GET /api/appointments/conflict-check
+// @route   GET /api/appointments/conflict-check?doctor=..&date=YYYY-MM-DD&startTime=..&endTime=..
 // @access  Private
 const checkDoctorConflict = async (req, res) => {
   try {
-    const { doctor, date, time } = req.query;
+    const { doctor, date, startTime, endTime } = req.query;
 
-    if (!doctor || !date || !time) {
-      return res.status(400).json({ message: 'Missing required query parameters.' });
+    if (!doctor || !date || !startTime || !endTime) {
+      return res.status(400).json({ message: 'Missing doctor, date, startTime or endTime.' });
     }
 
-    const conflict = await Appointment.findOne({
+    const sMin = toMinutes(String(startTime));
+    const eMin = toMinutes(String(endTime));
+    if (isNaN(sMin) || isNaN(eMin) || eMin <= sMin) {
+      return res.status(400).json({ message: 'Invalid time range.' });
+    }
+
+    const { start, end } = sameDayRange(String(date));
+    const sameDayAppointments = await Appointment.find({
       doctor,
-      appointmentDate: new Date(date),
-      appointmentTime: time,
-    });
+      status: { $ne: 'Cancelled' },
+      appointmentDate: { $gte: start, $lte: end }
+    }).select('startTime endTime');
 
-    if (conflict) {
-      return res.status(200).json({ available:false, message: 'This doctor is already booked at this time.' });
-    }
-
-    return res.json({ available: true });
+    const conflict = hasConflict(sameDayAppointments, String(startTime), String(endTime));
+    return res.json({ available: !conflict, message: conflict ? 'This doctor is already booked in that time range.' : 'Available.' });
   } catch (error) {
     console.error('Conflict check error:', error);
     res.status(500).json({ message: 'Server error checking conflict.' });
   }
 };
-
 
 export {
   createAppointment,

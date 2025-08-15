@@ -34,8 +34,6 @@ const CancelModal: React.FC<CancelModalProps> = ({
       const res = await patientApi.updateAppointment(appointmentId, {
         status: 'Cancelled',
       });
-      console.log('res', res);
-      console.log('res', res.data);
       setAppointments((prev: any) => {
         return prev.map((item: any) => {
           if (item._id === res.data._id) {

@@ -23,6 +23,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/(panel)/submitted", "src/app/(panel)/profile/userPersonal", "src/app/(panel)/profile/userAvaters", "src/app/(panel)/profile/userIdentification"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/panel/submitted", "src/app/panel/profile/userPersonal", "src/app/panel/profile/userAvaters", "src/app/panel/profile/userIdentification"],
   "exclude": ["node_modules"]
 }

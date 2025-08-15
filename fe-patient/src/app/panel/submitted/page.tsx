@@ -120,7 +120,13 @@ function Submitted() {
                     <td className="py-3 px-4">
                       {moment(appointment.appointmentDate).format('DD/MM/YYYY')}
                     </td>
+<<<<<<< HEAD:fe-patient/src/app/(panel)/submitted/page.tsx
                     <td className="py-3 px-4">{appointment.doctor.fullname}</td>
+=======
+                    <td className="py-3 px-4">
+                      {appointment?.doctor?.fullname}
+                    </td>
+>>>>>>> 73b5f28 (Frontend Update):fe-patient/src/app/panel/submitted/page.tsx
                     <td className="py-3 px-4">
                       <span
                         className={`inline-block px-2 py-1 rounded-full text-xs ${

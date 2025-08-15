@@ -68,7 +68,8 @@ const registerUser = async (req, res) => {
         _id: user._id,
         name: user.fullname,
         email: user.email,
-        isAdmin: user.isAdmin,
+        isAdmin: false, // Always false for new users
+        role: user.role,
         token: generateToken(user._id),
       });
     } else {

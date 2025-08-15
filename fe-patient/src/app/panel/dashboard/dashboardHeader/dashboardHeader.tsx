@@ -8,6 +8,8 @@ export default function DashboardHeader() {
   // Get logout function and user data from AuthContext
   const { logout, user } = useAuth();
 
+  console.log('user', user);
+
   return (
     <header className="py-4">
       <div className="flex justify-between items-center">

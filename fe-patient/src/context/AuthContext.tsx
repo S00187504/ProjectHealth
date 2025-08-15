@@ -249,7 +249,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (userData.isAdmin) {
         router.push('/dashboard');
       } else {
-        router.push('/submitted');
+        router.push('/dashboard/appointments');
       }
     } catch (err: any) {
       setError(

@@ -48,6 +48,10 @@ export const patientApi = {
   getMyAppointments: async () => {
     return api.get('/appointments/myappointments');
   },
+  // Get my appointments (for regular doctors)
+  getDoctorAppointments: async () => {
+    return api.get('/appointments/doctorappointments');
+  },
 
   // Get public appointments (for testing)
   getPublicAppointments: async () => {
@@ -102,7 +106,36 @@ export const patientApi = {
   // Get patient form data
   getPatientFormData: async (patientId: string) => {
     return api.get(`/patients/${patientId}/form-data`);
-  }
+  },
+  // checkDoctorConflict: async (doctorId: string, date: string, time: string) => {
+  //   return api.get('/appointments/conflict-check', {
+  //     params: { doctor: doctorId, date, time },
+  //   });
+  // },
+   checkDoctorConflict: async (
+    doctorId: string,
+    date: string,
+    startTime: string,
+    endTime: string
+  ) => {
+    return api.get('/appointments/conflict-check', {
+      params: { doctor: doctorId, date, startTime, endTime },
+    });
+  },
+};
+
+// Doctor API services
+export const doctorApi = {
+  // Get all doctors (public)
+  getAllDoctors: async () => {
+    return api.get('/users/doctors');
+  },
+};
+
+export const patientPublicApi = {
+  getAllPatients: async () => {
+    return api.get('/users/patients');
+  },
 };
 
 // Doctor API services
