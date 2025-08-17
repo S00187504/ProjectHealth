@@ -233,7 +233,7 @@ export default function AppointmentsTable({
               <TableHead>Time</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Doctor</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -281,17 +281,19 @@ export default function AppointmentsTable({
                 <TableCell>
                   {appointment?.doctor?.fullname || "No doctor assigned"}
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
+                <TableCell className="text-center">
+                  <div className="flex justify-center gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0"
-                      title="View Appointment Details"
+                      className="h-7 w-7 p-0 text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 group relative"
+                      title="Edit Appointment Details"
                       onClick={() => handleDetailsClick(appointment)}
+                      disabled={false}
                     >
                       <Info className="h-4 w-4" />
-                      <span className="sr-only">Details</span>
+                      <span className="sr-only">Edit Details</span>
+                      <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Edit Appointment Details</span>
                     </Button>
                     {/* Edit button for patients */}
                     {user?.role === 'patient' && (
@@ -299,12 +301,14 @@ export default function AppointmentsTable({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                          className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50 group relative"
                           title="Edit Appointment"
                           onClick={() => handleEditClick(appointment)}
+                          disabled={false}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13h3l7-7a2.828 2.828 0 00-4-4l-7 7v3z" /></svg>
                           <span className="sr-only">Edit</span>
+                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Edit Appointment</span>
                         </Button>
                         <Button
                           variant="ghost"
@@ -335,12 +339,27 @@ export default function AppointmentsTable({
                     {/* Status update icons for admin/doctor */}
                     {['admin', 'doctor'].includes(user?.role || '') && (
                       <>
+                        {/* Edit button always visible */}
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50"
+                          className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50 group relative"
+                          title="Edit Appointment"
+                          onClick={() => handleEditClick(appointment)}
+                          disabled={false}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13h3l7-7a2.828 2.828 0 00-4-4l-7 7v3z" /></svg>
+                          <span className="sr-only">Edit</span>
+                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Edit Appointment</span>
+                        </Button>
+                        {/* Complete button, disabled if already completed */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50 group relative"
                           title="Mark as Completed"
                           onClick={async () => {
+                            if (appointment.status.toLowerCase() === 'completed') return;
                             try {
                               const updated = { ...appointment, status: 'Completed' };
                               await patientApi.updateAppointment(appointment._id, {
@@ -355,16 +374,20 @@ export default function AppointmentsTable({
                               toast.error('Failed to update status');
                             }
                           }}
+                          disabled={appointment.status.toLowerCase() === 'completed'}
                         >
                           <Check className="h-4 w-4" />
                           <span className="sr-only">Complete</span>
+                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Mark as Completed</span>
                         </Button>
+                        {/* Revert button, disabled if already scheduled */}
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
+                          className="h-8 w-8 p-0 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50 group relative"
                           title="Revert to Scheduled"
                           onClick={async () => {
+                            if (appointment.status.toLowerCase() === 'scheduled') return;
                             try {
                               const updated = { ...appointment, status: 'Scheduled' };
                               await patientApi.updateAppointment(appointment._id, {
@@ -379,16 +402,20 @@ export default function AppointmentsTable({
                               toast.error('Failed to update status');
                             }
                           }}
+                          disabled={appointment.status.toLowerCase() === 'scheduled'}
                         >
                           <Clock className="h-4 w-4" />
-                          <span className="sr-only">Revert to Scheduled</span>
+                          <span className="sr-only">Revert</span>
+                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Revert to Scheduled</span>
                         </Button>
+                        {/* Cancel button, disabled if already cancelled */}
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 group relative"
                           title="Cancel Appointment"
                           onClick={async () => {
+                            if (appointment.status.toLowerCase() === 'cancelled' || appointment.status.toLowerCase() === 'canceled') return;
                             try {
                               const updated = { ...appointment, status: 'Cancelled' };
                               await patientApi.updateAppointment(appointment._id, {
@@ -403,9 +430,11 @@ export default function AppointmentsTable({
                               toast.error('Failed to update status');
                             }
                           }}
+                          disabled={appointment.status.toLowerCase() === 'cancelled' || appointment.status.toLowerCase() === 'canceled'}
                         >
                           <X className="h-4 w-4" />
                           <span className="sr-only">Cancel</span>
+                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Cancel Appointment</span>
                         </Button>
                       </>
                     )}
