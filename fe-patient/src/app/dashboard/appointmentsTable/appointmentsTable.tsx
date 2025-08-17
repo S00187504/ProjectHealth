@@ -58,15 +58,15 @@ const renderStatus = (status: string) => {
     case "scheduled":
       return (
         <div className="flex items-center text-green-500">
-          <Check className="h-4 w-4 mr-1" />
+          <Clock className="h-4 w-4 mr-1" />
           <span>Scheduled</span>
         </div>
       );
     case "pending":
       return (
         <div className="flex items-center text-blue-500">
-          <Clock className="h-4 w-4 mr-1" />
-          <span>Pending</span>
+          <Check className="h-4 w-4 mr-1" />
+          <span>Completed</span>
         </div>
       );
     case "cancelled":
@@ -79,11 +79,9 @@ const renderStatus = (status: string) => {
       );
     case "completed":
       return (
-        <div className="flex items-center">
-          <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-500 text-white mr-2">
-            <Check className="h-4 w-4" />
-          </span>
-          <span className="text-green-700 font-semibold">Completed</span>
+        <div className="flex items-center text-green-700">
+          <Check className="h-4 w-4 mr-1 text-green-700" style={{ filter: 'brightness(0.85)' }} />
+          <span className="font-semibold">Completed</span>
         </div>
       );
     case "no-show":
@@ -184,7 +182,7 @@ export default function AppointmentsTable({
 
   // Calculate tab counts
   const pendingCount = appointments.filter(
-    (apt) => apt.status.toLowerCase() === "pending"
+    (apt) => apt.status.toLowerCase() === ""
   ).length;
   const scheduledCount = appointments.filter(
     (apt) => apt.status.toLowerCase() === "scheduled"
@@ -198,12 +196,11 @@ export default function AppointmentsTable({
   // Filter appointments based on the selected tab
   const filteredAppointments = appointments.filter((appointment) => {
     const status = appointment.status.toLowerCase();
-
     switch (currentTab) {
-      case "pending":
-        return status === "pending";
       case "scheduled":
         return status === "scheduled";
+      case "completed":
+        return status === "completed";
       case "cancelled":
         return status === "cancelled" || status === "canceled";
       default:
@@ -229,6 +226,7 @@ export default function AppointmentsTable({
               <TableHead className="w-12"></TableHead>
               <TableHead>Patient</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>Time</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Doctor</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -262,69 +260,25 @@ export default function AppointmentsTable({
                   )}
                 </TableCell>
                 <TableCell>
-                  {appointment.appointmentDate && appointment.appointmentTime
-                    ? `${moment(appointment.appointmentDate).format(
-                        "DD/MM/YYYY"
-                      )} ${appointment.appointmentTime}`
-                    : moment(appointment.appointmentDate).format(
-                        "DD/MM/YYYY"
-                      ) || "No date set"}
+                  {appointment.appointmentDate
+                    ? moment(appointment.appointmentDate).format("DD/MM/YYYY")
+                    : "No date set"}
                 </TableCell>
                 <TableCell>
-                  {["admin", "doctor"].includes(user?.role) ? (
-                    <select
-                      className="border rounded px-2 py-1 text-sm"
-                      value={appointment.status}
-                      onChange={async (e) => {
-                        const newStatus = e.target.value;
-                        try {
-                          const updated = { ...appointment, status: newStatus };
-                          await patientApi.updateAppointment(appointment._id, {
-                            status: newStatus,
-                          });
-
-                          // Update state
-                          const updatedAppointments = appointments.map((apt) =>
-                            apt._id === appointment._id ? updated : apt
-                          );
-                          setAppointments(updatedAppointments);
-
-                          // ✅ Success toast
-                          toast.success(`Status updated to "${newStatus}"`);
-                        } catch (err) {
-                          console.error("Failed to update status:", err);
-                          toast.error(
-                            "Failed to update status. Please try again."
-                          );
-                        }
-                      }}
-                    >                      
-                      <option value="Scheduled">Scheduled</option>
-                      <option value="Completed">Completed</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="No-show">No-Show</option>
-                    </select>
-                  ) : (
-                    renderStatus(appointment.status)
-                  )}
+                  {appointment.appointmentTime
+                    ? appointment.appointmentTime
+                    : appointment.startTime
+                    ? appointment.startTime + (appointment.endTime ? ` - ${appointment.endTime}` : "")
+                    : "No time set"}
                 </TableCell>
-
+                <TableCell>
+                  {renderStatus(appointment.status)}
+                </TableCell>
                 <TableCell>
                   {appointment?.doctor?.fullname || "No doctor assigned"}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    {/* <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => handleViewPatientDetails(appointment)}
-                      title="View Patient Details"
-                      disabled={!appointment.patient._id}
-                    >
-                      <UserCircle className="h-4 w-4" />
-                      <span className="sr-only">View Patient</span>
-                    </Button> */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -335,19 +289,83 @@ export default function AppointmentsTable({
                       <Info className="h-4 w-4" />
                       <span className="sr-only">Details</span>
                     </Button>
-                    {appointment.status.toLowerCase() !== "cancelled" &&
-                      appointment.status.toLowerCase() !== "canceled" && (
+                    {/* Status update icons for admin/doctor */}
+                    {['admin', 'doctor'].includes(user?.role || '') && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50"
+                          title="Mark as Completed"
+                          onClick={async () => {
+                            try {
+                              const updated = { ...appointment, status: 'Completed' };
+                              await patientApi.updateAppointment(appointment._id, {
+                                status: 'Completed',
+                              });
+                              const updatedAppointments = appointments.map((apt) =>
+                                apt._id === appointment._id ? updated : apt
+                              );
+                              setAppointments(updatedAppointments);
+                              toast.success('Marked as Completed');
+                            } catch (err) {
+                              toast.error('Failed to update status');
+                            }
+                          }}
+                        >
+                          <Check className="h-4 w-4" />
+                          <span className="sr-only">Complete</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
+                          title="Revert to Scheduled"
+                          onClick={async () => {
+                            try {
+                              const updated = { ...appointment, status: 'Scheduled' };
+                              await patientApi.updateAppointment(appointment._id, {
+                                status: 'Scheduled',
+                              });
+                              const updatedAppointments = appointments.map((apt) =>
+                                apt._id === appointment._id ? updated : apt
+                              );
+                              setAppointments(updatedAppointments);
+                              toast.success('Reverted to Scheduled');
+                            } catch (err) {
+                              toast.error('Failed to update status');
+                            }
+                          }}
+                        >
+                          <Clock className="h-4 w-4" />
+                          <span className="sr-only">Revert to Scheduled</span>
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
-                          onClick={() => handleCancelClick(appointment)}
                           title="Cancel Appointment"
+                          onClick={async () => {
+                            try {
+                              const updated = { ...appointment, status: 'Cancelled' };
+                              await patientApi.updateAppointment(appointment._id, {
+                                status: 'Cancelled',
+                              });
+                              const updatedAppointments = appointments.map((apt) =>
+                                apt._id === appointment._id ? updated : apt
+                              );
+                              setAppointments(updatedAppointments);
+                              toast.success('Marked as Cancelled');
+                            } catch (err) {
+                              toast.error('Failed to update status');
+                            }
+                          }}
                         >
-                          <Ban className="h-4 w-4" />
+                          <X className="h-4 w-4" />
                           <span className="sr-only">Cancel</span>
                         </Button>
-                      )}
+                      </>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
@@ -632,11 +650,11 @@ export default function AppointmentsTable({
             <TabsTrigger value="all">
               All <span className="ml-1 text-xs">({appointments.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="pending">
-              Pending <span className="ml-1 text-xs">({pendingCount})</span>
-            </TabsTrigger>
             <TabsTrigger value="scheduled">
               Scheduled <span className="ml-1 text-xs">({scheduledCount})</span>
+            </TabsTrigger>
+            <TabsTrigger value="completed">
+              Completed <span className="ml-1 text-xs">({appointments.filter(a => a.status.toLowerCase() === 'completed').length})</span>
             </TabsTrigger>
             <TabsTrigger value="cancelled">
               Cancelled <span className="ml-1 text-xs">({cancelledCount})</span>
@@ -647,10 +665,10 @@ export default function AppointmentsTable({
           <TabsContent value="all">
             {renderAppointmentsTable(filteredAppointments)}
           </TabsContent>
-          <TabsContent value="pending">
+          <TabsContent value="scheduled">
             {renderAppointmentsTable(filteredAppointments)}
           </TabsContent>
-          <TabsContent value="scheduled">
+          <TabsContent value="completed">
             {renderAppointmentsTable(filteredAppointments)}
           </TabsContent>
           <TabsContent value="cancelled">

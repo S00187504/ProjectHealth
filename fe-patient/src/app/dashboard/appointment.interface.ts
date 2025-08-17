@@ -2,17 +2,19 @@
 export interface Appointment {
   id: string
   _id:string
-    patient: any
-    appointmentDate: string
-    appointmentTime?: string
-    status: string
-    doctor: any
-    reason?: string
-    type?: string
-    isOnline?: boolean
-    meetingLink?: string
-    notes?: string
-    patientId?: string
+  patient: any
+  appointmentDate: string
+  appointmentTime?: string
+  startTime?: string
+  endTime?: string
+  status: string
+  doctor: any
+  reason?: string
+  type?: string
+  isOnline?: boolean
+  meetingLink?: string
+  notes?: string
+  patientId?: string
   }
   
   export interface BackendAppointment {
@@ -24,14 +26,16 @@ export interface Appointment {
       email?: string
       phone?: string
     }
-    appointmentDate: string
-    appointmentTime: string
-    appointmentType: string
-    reason: string
-    status: string
-    notes: string
-    isOnline: boolean
-    meetingLink: string
+  appointmentDate: string
+  appointmentTime: string
+  startTime?: string
+  endTime?: string
+  appointmentType: string
+  reason: string
+  status: string
+  notes: string
+  isOnline: boolean
+  meetingLink: string
     doctor: {
       _id: string
       fullname?: string

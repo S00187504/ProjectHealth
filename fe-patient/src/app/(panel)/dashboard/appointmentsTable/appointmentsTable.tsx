@@ -1,3 +1,11 @@
+//import type { Appointment } from './appointment.interface';
+import { Appointment } from '@/app/dashboard/appointment.interface';
+//import ScheduleModal from './scheduleModal/scheduleModal';
+import ScheduleModal from '@/app/dashboard/scheduleModal/scheduleModal';
+//import CancelModal from './cancelModal/cancelModal';
+//import PatientDetailsModal from './patientDetailsModal/patientDetailsModal';
+import PatientDetailsModal from '@/app/dashboard/patientDetailsModal/patientDetailsModal';
+import CancelModal from '@/app/dashboard/cancelModal/cancelModal';
 'use client';
 import moment from 'moment';
 import { useState, useEffect } from 'react';
@@ -10,7 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import type { Appointment } from '../appointment.interface';
 import {
   Check,
   Clock,
@@ -21,9 +28,6 @@ import {
   Calendar,
   Ban,
 } from 'lucide-react';
-import ScheduleModal from '../scheduleModal/scheduleModal';
-import CancelModal from '../cancelModal/cancelModal';
-import PatientDetailsModal from '../patientDetailsModal/patientDetailsModal';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { patientApi } from '@/lib/api';
@@ -185,8 +189,8 @@ export default function AppointmentsTable({
   };
 
   // Calculate tab counts
-  const pendingCount = appointments.filter(
-    (apt) => apt.status.toLowerCase() === 'pending'
+  const completedCount = appointments.filter(
+    (apt) => apt.status.toLowerCase() === 'completed'
   ).length;
   const scheduledCount = appointments.filter(
     (apt) => apt.status.toLowerCase() === 'scheduled'
@@ -577,8 +581,8 @@ export default function AppointmentsTable({
             <TabsTrigger value="all">
               All <span className="ml-1 text-xs">({appointments.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="pending">
-              Pending <span className="ml-1 text-xs">({pendingCount})</span>
+            <TabsTrigger value="completed">
+              Completed <span className="ml-1 text-xs">({completedCount})</span>
             </TabsTrigger>
             <TabsTrigger value="scheduled">
               Scheduled <span className="ml-1 text-xs">({scheduledCount})</span>
@@ -592,7 +596,7 @@ export default function AppointmentsTable({
           <TabsContent value="all">
             {renderAppointmentsTable(filteredAppointments)}
           </TabsContent>
-          <TabsContent value="pending">
+          <TabsContent value="completed">
             {renderAppointmentsTable(filteredAppointments)}
           </TabsContent>
           <TabsContent value="scheduled">

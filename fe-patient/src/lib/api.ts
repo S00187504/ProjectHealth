@@ -138,20 +138,6 @@ export const patientPublicApi = {
   },
 };
 
-// Doctor API services
-export const doctorApi = {
-  // Get all doctors (public)
-  getAllDoctors: async () => {
-    return api.get('/users/doctors');
-  },
-};
-
-export const patientPublicApi = {
-  getAllPatients: async () => {
-    return api.get('/users/patients');
-  },
-};
-
 // Export all API services
 export default {
   auth: authApi,

@@ -19,6 +19,7 @@ type User = {
   email: string;
   isAdmin: boolean;
   token: string;
+  role?: string;
 };
 
 // Define auth context type

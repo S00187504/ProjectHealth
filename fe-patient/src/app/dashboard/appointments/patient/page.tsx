@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useFormContext } from '@/context/formContext'
 import PersonalData from './personalData/personalData'
 import MedicalData from './medicalData/medicalData'
-import IdentificationData from './identification/identificationData'
+//import IdentificationData from './identification/identificationData'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/mode' // Import the ModeToggle component
@@ -23,8 +23,20 @@ import { ModeToggle } from '@/components/mode' // Import the ModeToggle componen
  */
 export default function PatientPage() {
     const router = useRouter()
-    const { submitForm, loading, error } = useFormContext()
+    const { submitForm, loading, error, formData, updateFormData } = useFormContext()
     const [submitError, setSubmitError] = useState<string | null>(null)
+    const { user } = require('@/context/AuthContext').useAuth();
+
+    // Pre-fill form with logged-in user info on mount
+    React.useEffect(() => {
+        if (user) {
+            updateFormData({
+                fullname: user.name,
+                email: user.email,
+                phone: user.phone || '',
+            });
+        }
+    }, [user]);
 
     const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
@@ -60,9 +72,9 @@ export default function PatientPage() {
                     
                     <PersonalData />
                     <MedicalData />
-                    <IdentificationData />
+                    {/* <IdentificationData /> */}
                     <Button 
-                        className="w-full"
+                        className="w-full mt-6" // Added margin-top for spacing
                         onClick={handleSubmit}
                         disabled={loading}
                     >

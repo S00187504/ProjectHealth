@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, Clock, AlertTriangle } from "lucide-react"
+import { Calendar, Clock, AlertTriangle, Check } from "lucide-react"
 import type { Appointment } from "../appointment.interface"
 import { useEffect, useState, useMemo } from "react"
 
@@ -23,11 +23,11 @@ export default function KpiCards({ appointments }: KpiCardsProps) {
     const scheduledCount = appointments.filter(
       (app) => app?.status?.toLowerCase() === "scheduled"
     ).length;
-    
-    const pendingCount = appointments.filter(
-      (app) => app?.status?.toLowerCase() === "pending"
+
+    const completedCount = appointments.filter(
+      (app) => app?.status?.toLowerCase() === "completed"
     ).length;
-    
+
     const cancelledCount = appointments.filter(
       (app) => app?.status?.toLowerCase() === "cancelled" || 
                app?.status?.toLowerCase() === "canceled"
@@ -35,7 +35,7 @@ export default function KpiCards({ appointments }: KpiCardsProps) {
 
     return {
       scheduledCount,
-      pendingCount,
+      completedCount,
       cancelledCount,
     };
   }, [appointments]);
@@ -52,10 +52,10 @@ export default function KpiCards({ appointments }: KpiCardsProps) {
 
       <div className="bg-gradient-to-br from-[#D7EDED]/30 dark:from-[#D7EDED]/20 to-[#D7EDED]/30 dark:to-[#D7EDED]/0 rounded-lg p-6">
         <div className="flex items-start justify-between">
-          <Clock className="text-purple-500 h-8 w-8" />
-          <span className="text-3xl font-bold">{stats.pendingCount}</span>
+          <Check className="text-green-500 h-8 w-8" />
+          <span className="text-3xl font-bold">{stats.completedCount}</span>
         </div>
-        <p className="mt-4 text-gray-400">Total number of pending appointments</p>
+        <p className="mt-4 text-gray-400">Total number of completed appointments</p>
       </div>
 
       <div className="bg-gradient-to-br from-[#D7EDED]/30 dark:from-[#D7EDED]/20 to-[#D7EDED]/30 dark:to-[#D7EDED]/0 rounded-lg p-6">

@@ -34,11 +34,15 @@ const CancelModal: React.FC<CancelModalProps> = ({
       const res = await patientApi.updateAppointment(appointmentId, {
         status: 'Cancelled',
       });
-<<<<<<< HEAD:fe-patient/src/app/(panel)/dashboard/cancelModal/cancelModal.tsx
-      console.log('res', res);
-      console.log('res', res.data);
-=======
->>>>>>> 73b5f28 (Frontend Update):fe-patient/src/app/dashboard/cancelModal/cancelModal.tsx
+      setAppointments((prev: any) => {
+        return prev.map((item: any) => {
+          if (item._id === res.data._id) {
+            return res.data;
+          } else {
+            return item;
+          }
+        });
+      });
       setAppointments((prev: any) => {
         return prev.map((item: any) => {
           if (item._id === res.data._id) {
