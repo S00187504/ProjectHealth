@@ -1,4 +1,5 @@
 "use client";
+
 import { toast } from "react-hot-toast";
 import moment from "moment";
 import { useState, useEffect } from "react";
@@ -11,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { Check, Clock, X, Plus, Info, Ban } from "lucide-react";
 import ScheduleModal from "../scheduleModal/scheduleModal";
 import CancelModal from "../cancelModal/cancelModal";
@@ -28,7 +28,6 @@ interface AppointmentsTableProps {
   setAppointments: (value: Appointment[]) => void;
 }
 
-// Utility functions used across components
 const getInitials = (name: string) => {
   if (!name) return "U"; // Default for undefined
   return name
@@ -115,6 +114,11 @@ export default function AppointmentsTable({
   setAppointments,
 }: AppointmentsTableProps) {
   const { user } = useAuth();
+  const router = require('next/navigation').useRouter();
+
+  function handleEditClick(appointment: Appointment) {
+    router.push(`/dashboard/appointments/appointment/edit/${appointment._id}`);
+  }
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isPatientDetailsModalOpen, setIsPatientDetailsModalOpen] =
@@ -289,6 +293,45 @@ export default function AppointmentsTable({
                       <Info className="h-4 w-4" />
                       <span className="sr-only">Details</span>
                     </Button>
+                    {/* Edit button for patients */}
+                    {user?.role === 'patient' && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                          title="Edit Appointment"
+                          onClick={() => handleEditClick(appointment)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13h3l7-7a2.828 2.828 0 00-4-4l-7 7v3z" /></svg>
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
+                          title="Cancel Appointment"
+                          onClick={async () => {
+                            try {
+                              const updated = { ...appointment, status: 'Cancelled' };
+                              await patientApi.updateAppointment(appointment._id, {
+                                status: 'Cancelled',
+                              });
+                              const updatedAppointments = appointments.map((apt) =>
+                                apt._id === appointment._id ? updated : apt
+                              );
+                              setAppointments(updatedAppointments);
+                              toast.success('Marked as Cancelled');
+                            } catch (err) {
+                              toast.error('Failed to update status');
+                            }
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Cancel</span>
+                        </Button>
+                      </>
+                    )}
                     {/* Status update icons for admin/doctor */}
                     {['admin', 'doctor'].includes(user?.role || '') && (
                       <>
