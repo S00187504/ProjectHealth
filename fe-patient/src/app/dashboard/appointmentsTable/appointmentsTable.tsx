@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Check, Clock, X, Plus, Info, Ban } from "lucide-react";
+import { Check, Clock, X, Plus, Info, Ban, Trash } from "lucide-react";
 import ScheduleModal from "../scheduleModal/scheduleModal";
 import CancelModal from "../cancelModal/cancelModal";
 import PatientDetailsModal from "../patientDetailsModal/patientDetailsModal";
@@ -283,19 +283,20 @@ export default function AppointmentsTable({
                 </TableCell>
                 <TableCell className="text-center">
                   <div className="flex justify-center gap-2">
+                    {/* For others, show patient details icon. */}
                     <Button
                       variant="ghost"
                       size="sm"
                       className="h-7 w-7 p-0 text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 group relative"
-                      title="Edit Appointment Details"
+                      title="View Patient Details"
                       onClick={() => handleDetailsClick(appointment)}
                       disabled={false}
                     >
                       <Info className="h-4 w-4" />
-                      <span className="sr-only">Edit Details</span>
-                      <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Edit Appointment Details</span>
+                      <span className="sr-only">Patient Details</span>
+                      <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">View Patient Details</span>
                     </Button>
-                    {/* Edit button for patients */}
+                    {/* Edit, complete, revert, cancel, etc. for admin/doctor/patient */}
                     {user?.role === 'patient' && (
                       <>
                         <Button
@@ -336,10 +337,9 @@ export default function AppointmentsTable({
                         </Button>
                       </>
                     )}
-                    {/* Status update icons for admin/doctor */}
                     {['admin', 'doctor'].includes(user?.role || '') && (
                       <>
-                        {/* Edit button always visible */}
+                        {/* Edit button */}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -352,70 +352,13 @@ export default function AppointmentsTable({
                           <span className="sr-only">Edit</span>
                           <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Edit Appointment</span>
                         </Button>
-                        {/* Complete button, disabled if already completed */}
+                        {/* Cancel button */}
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50 group relative"
-                          title="Mark as Completed"
-                          onClick={async () => {
-                            if (appointment.status.toLowerCase() === 'completed') return;
-                            try {
-                              const updated = { ...appointment, status: 'Completed' };
-                              await patientApi.updateAppointment(appointment._id, {
-                                status: 'Completed',
-                              });
-                              const updatedAppointments = appointments.map((apt) =>
-                                apt._id === appointment._id ? updated : apt
-                              );
-                              setAppointments(updatedAppointments);
-                              toast.success('Marked as Completed');
-                            } catch (err) {
-                              toast.error('Failed to update status');
-                            }
-                          }}
-                          disabled={appointment.status.toLowerCase() === 'completed'}
-                        >
-                          <Check className="h-4 w-4" />
-                          <span className="sr-only">Complete</span>
-                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Mark as Completed</span>
-                        </Button>
-                        {/* Revert button, disabled if already scheduled */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50 group relative"
-                          title="Revert to Scheduled"
-                          onClick={async () => {
-                            if (appointment.status.toLowerCase() === 'scheduled') return;
-                            try {
-                              const updated = { ...appointment, status: 'Scheduled' };
-                              await patientApi.updateAppointment(appointment._id, {
-                                status: 'Scheduled',
-                              });
-                              const updatedAppointments = appointments.map((apt) =>
-                                apt._id === appointment._id ? updated : apt
-                              );
-                              setAppointments(updatedAppointments);
-                              toast.success('Reverted to Scheduled');
-                            } catch (err) {
-                              toast.error('Failed to update status');
-                            }
-                          }}
-                          disabled={appointment.status.toLowerCase() === 'scheduled'}
-                        >
-                          <Clock className="h-4 w-4" />
-                          <span className="sr-only">Revert</span>
-                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Revert to Scheduled</span>
-                        </Button>
-                        {/* Cancel button, disabled if already cancelled */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 group relative"
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
                           title="Cancel Appointment"
                           onClick={async () => {
-                            if (appointment.status.toLowerCase() === 'cancelled' || appointment.status.toLowerCase() === 'canceled') return;
                             try {
                               const updated = { ...appointment, status: 'Cancelled' };
                               await patientApi.updateAppointment(appointment._id, {
@@ -430,12 +373,90 @@ export default function AppointmentsTable({
                               toast.error('Failed to update status');
                             }
                           }}
-                          disabled={appointment.status.toLowerCase() === 'cancelled' || appointment.status.toLowerCase() === 'canceled'}
                         >
                           <X className="h-4 w-4" />
                           <span className="sr-only">Cancel</span>
-                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Cancel Appointment</span>
                         </Button>
+                        {/* Complete button */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-green-500 hover:text-green-600 hover:bg-green-50"
+                          title="Mark as Completed"
+                          onClick={async () => {
+                            try {
+                              const updated = { ...appointment, status: 'Completed' };
+                              await patientApi.updateAppointment(appointment._id, {
+                                status: 'Completed',
+                              });
+                              const updatedAppointments = appointments.map((apt) =>
+                                apt._id === appointment._id ? updated : apt
+                              );
+                              setAppointments(updatedAppointments);
+                              toast.success('Marked as Completed');
+                            } catch (err) {
+                              toast.error('Failed to update status');
+                            }
+                          }}
+                        >
+                          <Check className="h-4 w-4" />
+                          <span className="sr-only">Complete</span>
+                        </Button>
+                        {/* Revert button */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
+                          title="Revert to Scheduled"
+                          onClick={async () => {
+                            try {
+                              const updated = { ...appointment, status: 'Scheduled' };
+                              await patientApi.updateAppointment(appointment._id, {
+                                status: 'Scheduled',
+                              });
+                              const updatedAppointments = appointments.map((apt) =>
+                                apt._id === appointment._id ? updated : apt
+                              );
+                              setAppointments(updatedAppointments);
+                              toast.success('Reverted to Scheduled');
+                            } catch (err) {
+                              toast.error('Failed to update status');
+                            }
+                          }}
+                        >
+                          <Clock className="h-4 w-4" />
+                          <span className="sr-only">Revert</span>
+                        </Button>
+                      </>
+                    )}
+                    {/* Status update icons for admin/doctor - removed duplicate permanent delete button */}
+                    {['admin', 'doctor'].includes(user?.role || '') && ( 
+                      <> 
+                        {/* ...existing code for edit, complete, revert, cancel... */}
+                        {/* Permanent delete button for admins */}
+                        {user?.role === 'admin' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-700 hover:text-red-800 hover:bg-red-100 group relative"
+                            title="Permanently Delete Appointment"
+                            onClick={async () => {
+                              if (window.confirm('Are you sure you want to permanently delete this appointment? This action cannot be undone.')) {
+                                try {
+                                  await patientApi.deleteAppointment(appointment._id);
+                                  setAppointments(appointments.filter((apt) => apt._id !== appointment._id));
+                                  toast.success('Appointment permanently deleted');
+                                } catch (err) {
+                                  toast.error('Failed to delete appointment');
+                                }
+                              }
+                            }}
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Delete</span>
+                            <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-red-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Delete Appointment</span>
+                          </Button>
+                        )}
                       </>
                     )}
                   </div>
@@ -696,66 +717,45 @@ export default function AppointmentsTable({
 
   return (
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-      <div className="flex justify-between items-center px-6 pt-6">
-        <h2 className="text-lg font-semibold">Appointments</h2>
-        {/* <Button onClick={handleScheduleClick} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          New Appointment
-        </Button> */}
-        {user?.role === "patient" ? (
-          <Link href="/dashboard/appointments/patient">
-            <Button size="sm">
+      <Tabs value={currentTab} onValueChange={setCurrentTab} defaultValue="all" className="w-full">
+        <div className="flex justify-between items-center px-6 pt-6">
+          <h2 className="text-lg font-semibold">Appointments</h2>
+          {user?.role === "patient" ? (
+            <Link href="/dashboard/appointments/patient">
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                New Appointment
+              </Button>
+            </Link>
+          ) : (
+            <Button onClick={handleScheduleClick} size="sm">
               <Plus className="h-4 w-4 mr-2" />
               New Appointment
             </Button>
-          </Link>
-        ) : (
-          <Button onClick={handleScheduleClick} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            New Appointment
-          </Button>
-        )}
-      </div>
-      <Tabs value={currentTab} onValueChange={setCurrentTab} className="mt-2">
-        <div className="px-6">
-          <TabsList className="grid grid-cols-4 w-full max-w-md">
-            <TabsTrigger value="all">
-              All <span className="ml-1 text-xs">({appointments.length})</span>
-            </TabsTrigger>
-            <TabsTrigger value="scheduled">
-              Scheduled <span className="ml-1 text-xs">({scheduledCount})</span>
-            </TabsTrigger>
-            <TabsTrigger value="completed">
-              Completed <span className="ml-1 text-xs">({appointments.filter(a => a.status.toLowerCase() === 'completed').length})</span>
-            </TabsTrigger>
-            <TabsTrigger value="cancelled">
-              Cancelled <span className="ml-1 text-xs">({cancelledCount})</span>
-            </TabsTrigger>
-          </TabsList>
+          )}
         </div>
+        {/* Optionally add TabsList and TabsTriggers here for navigation */}
         <div className="p-6 pt-2">
           <TabsContent value="all">
             {renderAppointmentsTable(filteredAppointments)}
           </TabsContent>
           <TabsContent value="scheduled">
-            {renderAppointmentsTable(filteredAppointments)}
+            {renderAppointmentsTable(filteredAppointments.filter(apt => apt.status.toLowerCase() === "scheduled"))}
           </TabsContent>
           <TabsContent value="completed">
-            {renderAppointmentsTable(filteredAppointments)}
+            {renderAppointmentsTable(filteredAppointments.filter(apt => apt.status.toLowerCase() === "completed"))}
           </TabsContent>
           <TabsContent value="cancelled">
-            {renderAppointmentsTable(filteredAppointments)}
+            {renderAppointmentsTable(filteredAppointments.filter(apt => apt.status.toLowerCase() === "cancelled" || apt.status.toLowerCase() === "canceled"))}
           </TabsContent>
         </div>
       </Tabs>
-
       {showDetails && selectedAppointment && (
         <PatientDetails
           appointment={selectedAppointment}
           onClose={handleDetailsClose}
         />
       )}
-
       {/* Appointment Schedule Modal */}
       <ScheduleModal
         isOpen={isScheduleModalOpen}

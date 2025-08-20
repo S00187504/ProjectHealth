@@ -127,6 +127,11 @@ export const patientApi = {
       params: { doctor: doctorId, date, startTime, endTime },
     });
   },
+
+  // Delete a patient
+  deletePatient: async (id: string) => {
+    return api.delete(`/patients/${id}`);
+  },
 };
 
 // Doctor API services
@@ -149,7 +154,7 @@ export default {
   patient: patientApi,
   doctor: doctorApi,
   patientPublic: patientPublicApi,
-}; 
+};
 
 
 

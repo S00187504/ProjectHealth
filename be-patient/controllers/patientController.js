@@ -12,6 +12,7 @@
  * all patient data operations.
  */
 import Patient from '../models/Patient.js';
+import Appointment from '../models/Appointment.js';
 
 // @desc    Create a new patient
 // @route   POST /api/patients
@@ -184,17 +185,23 @@ const updatePatient = async (req, res) => {
 // @access  Private/Admin
 const deletePatient = async (req, res) => {
   try {
+    console.log('Delete request for patient:', req.params.id);
     const patient = await Patient.findById(req.params.id);
-
     if (patient) {
+      // Remove all appointments for this patient
+      const result = await Appointment.deleteMany({ patient: patient._id });
       await patient.deleteOne();
-      res.json({ message: 'Patient removed' });
+      res.json({ message: 'Patient and related appointments removed', deletedAppointments: result.deletedCount });
     } else {
-      res.status(404);
-      throw new Error('Patient not found');
+      const err = new Error('Patient not found');
+      err.status = 404;
+      err.patientId = req.params.id;
+      return next(err);
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error deleting patient:', error);
+    error.patientId = req.params.id;
+    return next(error);
   }
 };
 

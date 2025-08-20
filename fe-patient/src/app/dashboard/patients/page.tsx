@@ -2,7 +2,10 @@
 
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
-import { patientApi } from '@/lib/api'; // adjust import path
+import { patientApi } from '@/lib/api';
+import { Button } from "@/components/ui/button";
+import { Trash, Eye } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 type Patient = {
   _id: string;
@@ -39,10 +42,10 @@ type UserWithRole = {
 export default function PatientsPage() {
   const { user } = useAuth() as { user: UserWithRole | null };
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  // ...existing code...
+  const [showPermanentDeleteModal, setShowPermanentDeleteModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -104,12 +107,35 @@ export default function PatientsPage() {
                   <td className="p-3">{new Date(p.dob).toLocaleDateString()}</td>
                   <td className="p-3">{p.occupation}</td>
                   <td className="p-3">
-                    <button
-                      onClick={() => openModal(p)}
-                      className="text-blue-600 underline hover:text-blue-800 cursor-pointer"
-                    >
-                      View
-                    </button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-50 group relative"
+                        title="View Patient"
+                        onClick={() => openModal(p)}
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span className="sr-only">View</span>
+                        <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-blue-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">View Patient</span>
+                      </Button>
+                      {user?.role === 'admin' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-red-700 hover:text-red-800 hover:bg-red-100 group relative"
+                          title="Permanently Delete Patient"
+                          onClick={() => {
+                            setSelectedPatient(p);
+                            setShowPermanentDeleteModal(true);
+                          }}
+                        >
+                          <Trash className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                          <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-red-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Delete Patient</span>
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -150,7 +176,35 @@ export default function PatientsPage() {
           </div>
         </div>
       )}
-      {/* ...existing code... */}
+
+      {showPermanentDeleteModal && selectedPatient && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4 text-red-700">Are you sure you want to permanently delete this patient?</h3>
+            <p className="mb-6">This action cannot be undone.</p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowPermanentDeleteModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  try {
+                    await patientApi.deletePatient(selectedPatient._id);
+                    setPatients(patients.filter((pat) => pat._id !== selectedPatient._id));
+                    setShowPermanentDeleteModal(false);
+                    toast.success('Patient permanently deleted');
+                  } catch (err) {
+                    toast.error('Failed to delete patient');
+                  }
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

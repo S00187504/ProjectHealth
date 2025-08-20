@@ -4,7 +4,7 @@ export default function AdminOverviewPage() {
     <div>
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
       <div className="flex flex-col md:flex-row items-center mb-6 p-6 bg-blue-50 rounded-lg shadow">
-        <img src="/Illustration.svg" alt="Admin" className="w-32 h-32 object-cover rounded-full mb-4 md:mb-0 md:mr-6 border-4 border-blue-200" />
+  <img src="/staff.avif" alt="Admin" className="w-32 h-32 object-cover rounded-full mb-4 md:mb-0 md:mr-6 border-4 border-blue-200" />
         <div>
           <p className="font-semibold text-lg mb-2">About ProjectHealth</p>
           <p className="text-sm mb-2">ProjectHealth is a healthcare management platform for secure appointment scheduling, patient management, and communication between doctors, patients, and administrators.</p>
