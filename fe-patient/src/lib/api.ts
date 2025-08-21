@@ -39,6 +39,10 @@ export const authApi = {
 
 // Patient API services
 export const patientApi = {
+  // Get patient info by user ID
+  getPatientByUserId: async (userId: string) => {
+    return api.get(`/patients/${userId}`);
+  },
   // Get a single appointment by ID
   getAppointmentById: async (id: string) => {
     if (!id) throw new Error('Appointment ID is required');

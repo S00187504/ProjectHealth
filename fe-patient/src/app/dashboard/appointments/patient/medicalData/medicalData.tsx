@@ -1,4 +1,7 @@
+
 "use client"
+
+import React from "react";
 
 import { useFormContext } from "@/context/formContext"
 import { LuBriefcaseMedical } from "react-icons/lu"
@@ -10,11 +13,23 @@ import { Input } from "@/components/ui/input"
 
 function MedicalData() {
   const { formData, updateFormData } = useFormContext()
+  const [doctors, setDoctors] = React.useState<any[]>([]);
+  React.useEffect(() => {
+    async function fetchDoctors() {
+      try {
+        const res = await require('@/lib/api').doctorApi.getAllDoctors();
+        setDoctors(res.data || []);
+      } catch (err) {
+        setDoctors([]);
+      }
+    }
+    fetchDoctors();
+  }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target
-    updateFormData({ [id]: value })
-  }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    updateFormData({ [id]: value });
+  };
 
   return (
     <section className="mt-8 md:mt-12 flex flex-col gap-4">
@@ -31,13 +46,17 @@ function MedicalData() {
           <span className="flex items-center justify-center px-2 md:px-3 text-gray-400">
             <GrUserManager size={20} />
           </span>
-          <Input 
-            id="physician" 
-            type="text" 
-            placeholder="Enter your physician"
+          <select
+            id="physician"
             value={formData.physician || ''}
             onChange={handleChange}
-          />
+            className="w-full bg-transparent outline-none border-none text-gray-900 dark:text-gray-100 px-2 py-1"
+          >
+            <option value="">Select a doctor</option>
+            {doctors.map((doc: any) => (
+              <option key={doc._id} value={doc.fullname}>{doc.fullname}</option>
+            ))}
+          </select>
         </div>
       </div>
 

@@ -58,13 +58,44 @@ export default function PatientPage() {
 
     // Pre-fill form with logged-in user info on mount
     React.useEffect(() => {
-        if (user) {
-            updateFormData({
-                fullname: user.name,
-                email: user.email,
-                phone: user.phone || '',
-            });
+        async function fetchPatientInfo() {
+            if (user) {
+                try {
+                    const res = await require('@/lib/api').patientApi.getPatientByUserId(user._id);
+                    const patient = res.data;
+                    // Map backend fields to formData keys
+                    updateFormData({
+                        fullname: patient.fullname,
+                        email: patient.email,
+                        phone: patient.phone || '',
+                        dob: patient.dob ? patient.dob.substring(0,10) : '',
+                        address: patient.address || '',
+                        occupation: patient.occupation || '',
+                        physician: patient.physician || '',
+                        insurance: patient.insurance || '',
+                        policy: patient.policy || '',
+                        allergies: patient.allergies || '',
+                        medications: patient.medications || '',
+                        history: patient.history || '',
+                        familyHistory: patient.familyHistory || '',
+                        identificationType: patient.identificationType || '',
+                        documentFileName: patient.documentFileName || '',
+                        documentFileSize: patient.documentFileSize || 0,
+                        consentTreatment: patient.consentTreatment,
+                        consentDisclosure: patient.consentDisclosure,
+                        acknowledgePrivacy: patient.acknowledgePrivacy,
+                    });
+                } catch (err) {
+                    // fallback to basic info if fetch fails
+                    updateFormData({
+                        fullname: user.name,
+                        email: user.email,
+                        phone: user.phone || '',
+                    });
+                }
+            }
         }
+        fetchPatientInfo();
     }, [user]);
 
     const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {

@@ -30,7 +30,7 @@ const sameDayRange = (dateLike) => {
 const hasConflict = (existing, startTime, endTime) => {
   const sNew = toMinutes(startTime);
   const eNew = toMinutes(endTime);
-  if (isNaN(sNew) || isNaN(eNew)) return true; // treat invalid time as conflict
+  if (isNaN(sNew) || isNaN(eNew)) return false; // don't treat invalid time as conflict here
   return existing.some(a => {
     const sOld = toMinutes(a.startTime);
     const eOld = toMinutes(a.endTime);

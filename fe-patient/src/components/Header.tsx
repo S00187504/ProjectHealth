@@ -10,6 +10,14 @@ import Link from 'next/link';
 const Header = () => {
   const { logout, user } = useAuth();
   console.log('user', user);
+  // Helper to get initials from name
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   return (
     <nav className="p-4 flex justify-between items-center">
       <div className="font-bold text-xl">Practice Manager</div>
@@ -17,8 +25,7 @@ const Header = () => {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <Avatar>
-              <AvatarImage src="/placeholder.svg" alt="Dashboard" />
-              <AvatarFallback>DA</AvatarFallback>
+              <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
             </Avatar>
             {/* Display Admin or User based on user role */}
             <span>{user && user.name}</span>

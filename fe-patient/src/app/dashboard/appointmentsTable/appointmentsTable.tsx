@@ -248,9 +248,17 @@ export default function AppointmentsTable({
                       getInitials(appointment?.patient?.fullname)
                     )}`}
                   >
-                    <AvatarFallback>
-                      {getInitials(appointment?.patient?.fullname)}
-                    </AvatarFallback>
+                    {appointment?.patient?.fullname ? (
+                      <AvatarFallback>
+                        {getInitials(appointment?.patient?.fullname)}
+                      </AvatarFallback>
+                    ) : (
+                      <img
+                        src="/placeholder.svg"
+                        alt="User"
+                        className="aspect-square size-full rounded-full"
+                      />
+                    )}
                   </Avatar>
                 </TableCell>
                 <TableCell>
