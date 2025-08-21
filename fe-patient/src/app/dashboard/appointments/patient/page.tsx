@@ -63,30 +63,38 @@ export default function PatientPage() {
                 try {
                     const res = await require('@/lib/api').patientApi.getPatientByUserId(user._id);
                     const patient = res.data;
-                    // Map backend fields to formData keys
-                    updateFormData({
-                        fullname: patient.fullname,
-                        email: patient.email,
-                        phone: patient.phone || '',
-                        dob: patient.dob ? patient.dob.substring(0,10) : '',
-                        address: patient.address || '',
-                        occupation: patient.occupation || '',
-                        physician: patient.physician || '',
-                        insurance: patient.insurance || '',
-                        policy: patient.policy || '',
-                        allergies: patient.allergies || '',
-                        medications: patient.medications || '',
-                        history: patient.history || '',
-                        familyHistory: patient.familyHistory || '',
-                        identificationType: patient.identificationType || '',
-                        documentFileName: patient.documentFileName || '',
-                        documentFileSize: patient.documentFileSize || 0,
-                        consentTreatment: patient.consentTreatment,
-                        consentDisclosure: patient.consentDisclosure,
-                        acknowledgePrivacy: patient.acknowledgePrivacy,
-                    });
+                    if (patient && patient._id) {
+                        updateFormData({
+                            fullname: patient.fullname,
+                            email: patient.email,
+                            phone: patient.phone || '',
+                            dob: patient.dob ? patient.dob.substring(0,10) : '',
+                            address: patient.address || '',
+                            occupation: patient.occupation || '',
+                            physician: patient.physician || '',
+                            insurance: patient.insurance || '',
+                            policy: patient.policy || '',
+                            allergies: patient.allergies || '',
+                            medications: patient.medications || '',
+                            history: patient.history || '',
+                            familyHistory: patient.familyHistory || '',
+                            identificationType: patient.identificationType || '',
+                            documentFileName: patient.documentFileName || '',
+                            documentFileSize: patient.documentFileSize || 0,
+                            consentTreatment: patient.consentTreatment,
+                            consentDisclosure: patient.consentDisclosure,
+                            acknowledgePrivacy: patient.acknowledgePrivacy,
+                        });
+                    } else {
+                        setSubmitError("No patient record found. Please complete your profile or contact support.");
+                        updateFormData({
+                            fullname: user.name,
+                            email: user.email,
+                            phone: user.phone || '',
+                        });
+                    }
                 } catch (err) {
-                    // fallback to basic info if fetch fails
+                    setSubmitError("Unable to load patient record. Please try again or contact support.");
                     updateFormData({
                         fullname: user.name,
                         email: user.email,
@@ -129,17 +137,56 @@ export default function PatientPage() {
                             {error || submitError}
                         </div>
                     )}
+                    {submitError && (
+                        <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 text-center">
+                            {submitError}
+                            <div className="mt-2">
+                                <span className="font-semibold">It looks like this is your first time here.</span><br />
+                                Please complete your profile to get started with appointments and medical records.
+                            </div>
+                        </div>
+                    )}
                     
                     <PersonalData />
-                    <MedicalData />
-                    {/* <IdentificationData /> */}
-                    <Button 
-                        className="w-full mt-6" // Added margin-top for spacing
-                        onClick={handleSubmit}
-                        disabled={loading}
-                    >
-                        {loading ? 'Submitting...' : 'Submit & Continue'}
-                    </Button>
+                                        <MedicalData />
+                                                            {/* Consent Options as Checkboxes */}
+                                                                                <div className="mt-8 space-y-4">
+                                                                                    <label className="flex items-center gap-2">
+                                                                                        <input
+                                                                                            type="checkbox"
+                                                                                            checked={!!formData.consentTreatment}
+                                                                                            onChange={e => updateFormData({ consentTreatment: e.target.checked })}
+                                                                                            className="accent-green-600 h-4 w-4"
+                                                                                        />
+                                                                                        <span className="text-sm font-medium text-gray-500">Consent to Treatment</span>
+                                                                                    </label>
+                                                                                    <label className="flex items-center gap-2">
+                                                                                        <input
+                                                                                            type="checkbox"
+                                                                                            checked={!!formData.consentDisclosure}
+                                                                                            onChange={e => updateFormData({ consentDisclosure: e.target.checked })}
+                                                                                            className="accent-green-600 h-4 w-4"
+                                                                                        />
+                                                                                        <span className="text-sm font-medium text-gray-500">Consent to Disclosure</span>
+                                                                                    </label>
+                                                                                    <label className="flex items-center gap-2">
+                                                                                        <input
+                                                                                            type="checkbox"
+                                                                                            checked={!!formData.acknowledgePrivacy}
+                                                                                            onChange={e => updateFormData({ acknowledgePrivacy: e.target.checked })}
+                                                                                            className="accent-green-600 h-4 w-4"
+                                                                                        />
+                                                                                        <span className="text-sm font-medium text-gray-500">Acknowledge Privacy Policy</span>
+                                                                                    </label>
+                                                                                </div>
+                                        {/* <IdentificationData /> */}
+                                        <Button 
+                                                className="w-full mt-6" // Added margin-top for spacing
+                                                onClick={handleSubmit}
+                                                disabled={loading}
+                                        >
+                                                {loading ? 'Submitting...' : 'Submit & Continue'}
+                                        </Button>
                 </div>
                 {/* <div className='w-0 lg:w-1/2 h-0 lg:h-screen border overflow-hidden sticky top-0'>
                     <Image src={"/doctor.jpeg"} alt='photo' width={700} height={100} />

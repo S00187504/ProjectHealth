@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { X, Loader2 } from "lucide-react"
+import { X, Loader2, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { patientApi } from "@/lib/api"
 
@@ -186,14 +186,21 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full shadow-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
+  <div className="bg-white dark:bg-gray-800 rounded-lg p-1 max-w-[13.5rem] w-full shadow-lg max-h-[37.5vh] overflow-hidden">
+        <div className="flex items-center mb-4">
+          <button
+            onClick={onClose}
+            className="p-1 mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+            aria-label="Back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             Patient Details {patientData._id ? `#${patientData._id.slice(-6)}` : ''}
           </h2>
           <button 
             onClick={onClose} 
-            className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+            className="p-1 ml-auto rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
           >
             <X className="h-5 w-5" />
           </button>

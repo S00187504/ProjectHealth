@@ -16,12 +16,17 @@ interface FormDataType {
   
   // Medical Information
   physician?: string
-  insurance?: string
+  insurance?: string // yes/no
+  insuranceProvider?: string // provider name if yes
   policy?: string
-  allergies?: string
-  medications?: string
-  history?: string
-  familyHistory?: string
+  allergies?: string // yes/no
+  allergyList?: string[] // selected allergies if yes
+  medications?: string // yes/no
+  medicationsDetails?: string // details if yes
+  history?: string // yes/no
+  historyDetails?: string // details if yes
+  familyHistory?: string // yes/no
+  familyHistoryDetails?: string // details if yes
   
   // Identification & Verification
   identificationType?: string

@@ -146,7 +146,7 @@ export default function PatientsPage() {
 
       {showModal && selectedPatient && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-8 relative border-4 border-blue-200">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-5 relative border-4 border-blue-200 max-h-[87.5vh] overflow-y-auto scrollbar scrollbar-thumb-blue-600 scrollbar-track-blue-200">
             <button
               onClick={closeModal}
               className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl"
@@ -206,6 +206,13 @@ export default function PatientsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4 text-red-700">Are you sure you want to permanently delete this patient?</h3>
+            <div className="mb-4 p-3 bg-gray-50 rounded border text-sm">
+              <div><span className="font-semibold">Full Name:</span> {selectedPatient.fullname}</div>
+              <div><span className="font-semibold">Email:</span> {selectedPatient.email}</div>
+              <div><span className="font-semibold">Phone:</span> {selectedPatient.phone}</div>
+              <div><span className="font-semibold">Date of Birth:</span> {selectedPatient.dob ? new Date(selectedPatient.dob).toLocaleDateString() : '-'}</div>
+              <div><span className="font-semibold">Occupation:</span> {selectedPatient.occupation}</div>
+            </div>
             <p className="mb-6">This action cannot be undone.</p>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowPermanentDeleteModal(false)}>
