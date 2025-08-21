@@ -1,3 +1,4 @@
+"use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ModeToggle } from "@/components/mode"
 import { Button } from "@/components/ui/button"
@@ -33,7 +34,7 @@ export default function DashboardHeader() {
 
   return (
     <header className="py-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center text-foreground">
         <div className="flex items-center gap-2">
           <span className="text-xl font-bold">Practice Manager</span>
         </div>
@@ -41,18 +42,8 @@ export default function DashboardHeader() {
           <div className="flex items-center gap-2">
             <span className="text-xl">{roleIcon(user?.role)}</span>
             <span className="ml-2 font-semibold">{user?.name}</span>
-            <span className="ml-2 text-xs text-gray-500">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</span>
+            <span className="ml-2 text-xs text-foreground">{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}</span>
           </div>
-           {/* Logout button - calls the logout function from AuthContext */}
-          {/* <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={logout}
-            className="flex items-center gap-2"
-          >
-            <MdLogout className="w-4 h-4" />
-            Logout
-          </Button> */}
           <ModeToggle />
         </div>
       </div>

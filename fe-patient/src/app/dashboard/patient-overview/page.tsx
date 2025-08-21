@@ -1,9 +1,14 @@
 // src/app/dashboard/patient-overview/page.tsx
+
+
+import DashboardHeader from '../dashboardHeader/dashboardHeader';
+
 export default function PatientOverviewPage() {
   return (
-    <div>
-      <div className="flex flex-col md:flex-row items-center mb-6 p-6 bg-blue-50 rounded-lg shadow">
-        <img src="/placeholder.svg" alt="Patient" className="w-32 h-32 object-cover rounded-full mb-4 md:mb-0 md:mr-6 border-4 border-blue-200" />
+    <>
+      <DashboardHeader />
+      <div className="flex flex-col md:flex-row items-center mb-6 p-6 bg-blue-50 dark:bg-gray-800 rounded-lg shadow">
+        <img src="/placeholder.svg" alt="Patient" className="w-32 h-32 object-cover rounded-full mb-4 md:mb-0 md:mr-6 border-4 border-blue-200 dark:border-gray-700" />
         <div>
           <p className="font-semibold text-lg mb-2">About Practice Manager</p>
           <p className="text-sm mb-2">Practice Manager is a healthcare management platform for secure appointment scheduling, patient management, and communication between doctors, patients, and administrators.</p>
@@ -27,7 +32,6 @@ export default function PatientOverviewPage() {
           </div>
         </div>
       </div>
-     
-    </div>
+    </>
   );
 }

@@ -15,6 +15,7 @@ import {
 import { Check, Clock, X, Plus, Info, Ban, Trash } from "lucide-react";
 import ScheduleModal from "../scheduleModal/scheduleModal";
 import CancelModal from "../cancelModal/cancelModal";
+import DeleteModal from "../cancelModal/deleteModal";
 import PatientDetailsModal from "../patientDetailsModal/patientDetailsModal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -125,6 +126,8 @@ export default function AppointmentsTable({
     useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [currentTab, setCurrentTab] = useState("all");
   const [patientEmailForSchedule, setPatientEmailForSchedule] = useState<
@@ -360,27 +363,13 @@ export default function AppointmentsTable({
                           <span className="sr-only">Edit</span>
                           <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Edit Appointment</span>
                         </Button>
-                        {/* Cancel button */}
+                        {/* Cancel button with modal confirmation */}
                         <Button
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0 text-red-500 hover:text-red-600 hover:bg-red-50"
                           title="Cancel Appointment"
-                          onClick={async () => {
-                            try {
-                              const updated = { ...appointment, status: 'Cancelled' };
-                              await patientApi.updateAppointment(appointment._id, {
-                                status: 'Cancelled',
-                              });
-                              const updatedAppointments = appointments.map((apt) =>
-                                apt._id === appointment._id ? updated : apt
-                              );
-                              setAppointments(updatedAppointments);
-                              toast.success('Marked as Cancelled');
-                            } catch (err) {
-                              toast.error('Failed to update status');
-                            }
-                          }}
+                          onClick={() => handleCancelClick(appointment)}
                         >
                           <X className="h-4 w-4" />
                           <span className="sr-only">Cancel</span>
@@ -437,33 +426,88 @@ export default function AppointmentsTable({
                         </Button>
                       </>
                     )}
-                    {/* Status update icons for admin/doctor - removed duplicate permanent delete button */}
+                    {/* Cancel confirmation modal for admin/doctor */}
+                    {isCancelModalOpen && selectedAppointment && (
+                      <CancelModal
+                        isOpen={isCancelModalOpen}
+                        onClose={() => {
+                          setIsCancelModalOpen(false);
+                          setSelectedAppointment(null);
+                        }}
+                        appointmentId={selectedAppointment._id}
+                        appointmentDetails={{
+                          patient: selectedAppointment.patient,
+                          date: selectedAppointment.appointmentDate ?? selectedAppointment.startTime ?? "",
+                          time:
+                            selectedAppointment.appointmentTime && selectedAppointment.appointmentTime !== ""
+                              ? selectedAppointment.appointmentTime
+                              : selectedAppointment.startTime && selectedAppointment.startTime !== ""
+                              ? selectedAppointment.startTime + (selectedAppointment.endTime && selectedAppointment.endTime !== "" ? ` - ${selectedAppointment.endTime}` : "")
+                              : "No time set",
+                          doctor:
+                            selectedAppointment.doctor && selectedAppointment.doctor.fullname && selectedAppointment.doctor.fullname !== ""
+                              ? selectedAppointment.doctor
+                              : { fullname: "No doctor assigned" },
+                        }}
+                        setAppointments={setAppointments}
+                      />
+                    )}
                     {['admin', 'doctor'].includes(user?.role || '') && ( 
                       <> 
                         {/* ...existing code for edit, complete, revert, cancel... */}
-                        {/* Permanent delete button for admins */}
+                        {/* Permanent delete button for admins with custom modal */}
                         {user?.role === 'admin' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-red-700 hover:text-red-800 hover:bg-red-100 group relative"
-                            title="Permanently Delete Appointment"
-                            onClick={async () => {
-                              if (window.confirm('Are you sure you want to permanently delete this appointment? This action cannot be undone.')) {
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-red-700 hover:text-red-800 hover:bg-red-100 group relative"
+                              title="Permanently Delete Appointment"
+                              onClick={() => {
+                                setSelectedAppointment(appointment);
+                                setIsDeleteModalOpen(true);
+                              }}
+                            >
+                              <Trash className="h-4 w-4" />
+                              <span className="sr-only">Delete</span>
+                              <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-red-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Delete Appointment</span>
+                            </Button>
+                            <DeleteModal
+                              isOpen={isDeleteModalOpen}
+                              onClose={() => {
+                                setIsDeleteModalOpen(false);
+                                setSelectedAppointment(null);
+                              }}
+                              onDelete={async () => {
+                                setDeleteLoading(true);
                                 try {
-                                  await patientApi.deleteAppointment(appointment._id);
-                                  setAppointments(appointments.filter((apt) => apt._id !== appointment._id));
+                                  await patientApi.deleteAppointment(selectedAppointment?._id || "");
+                                  setAppointments(appointments.filter((apt) => apt._id !== selectedAppointment?._id));
                                   toast.success('Appointment permanently deleted');
+                                  setIsDeleteModalOpen(false);
+                                  setSelectedAppointment(null);
                                 } catch (err) {
                                   toast.error('Failed to delete appointment');
                                 }
-                              }
-                            }}
-                          >
-                            <Trash className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                            <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-red-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Delete Appointment</span>
-                          </Button>
+                                setDeleteLoading(false);
+                              }}
+                              loading={deleteLoading}
+                              appointmentDetails={{
+                                patient: selectedAppointment?.patient || "",
+                                date: selectedAppointment?.appointmentDate ?? selectedAppointment?.startTime ?? "",
+                                time:
+                                  selectedAppointment?.appointmentTime && selectedAppointment?.appointmentTime !== ""
+                                    ? selectedAppointment?.appointmentTime
+                                    : selectedAppointment?.startTime && selectedAppointment?.startTime !== ""
+                                    ? selectedAppointment?.startTime + (selectedAppointment?.endTime && selectedAppointment?.endTime !== "" ? ` - ${selectedAppointment?.endTime}` : "")
+                                    : "No time set",
+                                doctor:
+                                  selectedAppointment?.doctor && selectedAppointment?.doctor.fullname && selectedAppointment?.doctor.fullname !== ""
+                                    ? selectedAppointment?.doctor
+                                    : { fullname: "No doctor assigned" },
+                              }}
+                            />
+                          </>
                         )}
                       </>
                     )}
@@ -779,7 +823,17 @@ export default function AppointmentsTable({
         appointmentId={selectedAppointment?._id || ""}
         appointmentDetails={{
           patient: selectedAppointment?.patient || "",
-          date: selectedAppointment?.appointmentDate || "",
+          date: selectedAppointment?.appointmentDate ?? selectedAppointment?.startTime ?? "",
+          time:
+            selectedAppointment?.appointmentTime && selectedAppointment?.appointmentTime !== ""
+              ? selectedAppointment?.appointmentTime
+              : selectedAppointment?.startTime && selectedAppointment?.startTime !== ""
+              ? selectedAppointment?.startTime + (selectedAppointment?.endTime && selectedAppointment?.endTime !== "" ? ` - ${selectedAppointment?.endTime}` : "")
+              : "No time set",
+          doctor:
+            selectedAppointment?.doctor && selectedAppointment?.doctor.fullname && selectedAppointment?.doctor.fullname !== ""
+              ? selectedAppointment?.doctor
+              : { fullname: "No doctor assigned" },
         }}
         setAppointments={setAppointments}
       />

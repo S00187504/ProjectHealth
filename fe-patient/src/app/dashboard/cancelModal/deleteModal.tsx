@@ -1,16 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+import React from "react";
+import moment from "moment";
+import { X } from "lucide-react";
 
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import { patientApi } from '@/lib/api';
-import moment from 'moment';
-
-interface CancelModalProps {
+interface DeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  setAppointments: (value: any) => void;
-  appointmentId: string;
+  onDelete: () => void;
+  loading?: boolean;
   appointmentDetails: {
     patient: any;
     date: string;
@@ -19,55 +15,14 @@ interface CancelModalProps {
   };
 }
 
-const CancelModal: React.FC<CancelModalProps> = ({
-  isOpen,
-  onClose,
-  appointmentId,
-  appointmentDetails,
-  setAppointments,
-}) => {
-  const [loading, setLoading] = useState(false);
-
+const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, onDelete, loading, appointmentDetails }) => {
   if (!isOpen) return null;
-
-  const handleCancel = async () => {
-    try {
-      setLoading(true);
-      const res = await patientApi.updateAppointment(appointmentId, {
-        status: 'Cancelled',
-      });
-      setAppointments((prev: any) => {
-        return prev.map((item: any) => {
-          if (item._id === res.data._id) {
-            return res.data;
-          } else {
-            return item;
-          }
-        });
-      });
-      setAppointments((prev: any) => {
-        return prev.map((item: any) => {
-          if (item._id === res.data._id) {
-            return res.data;
-          } else {
-            return item;
-          }
-        });
-      });
-      setLoading(false);
-      onClose();
-    } catch (error) {
-      console.error('Failed to cancel appointment:', error);
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-lg">
+  <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full shadow-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Cancel Appointment
+            Permanently Delete Appointment
           </h2>
           <button
             onClick={onClose}
@@ -76,12 +31,13 @@ const CancelModal: React.FC<CancelModalProps> = ({
             <X className="h-5 w-5" />
           </button>
         </div>
-
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
-          Are you sure you want to cancel this appointment?
+        <p className="text-gray-600 dark:text-gray-300 mb-1 text-left ml-2">
+          Are you sure you want to <span className="font-bold text-red-600">permanently delete</span> this appointment?
         </p>
-
-        <div className="py-4 border-t border-b border-gray-200 dark:border-gray-700">
+        <p className="text-gray-600 dark:text-gray-300 mb-4 text-left ml-2">
+          This action cannot be undone.
+        </p>
+        <div className="py-4 border-t border-b border-gray-200 dark:border-gray-700 text-left">
           <div className="mb-4">
             <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Patient:</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">{appointmentDetails.patient.fullname}</p>
@@ -92,14 +48,13 @@ const CancelModal: React.FC<CancelModalProps> = ({
           </div>
           <div className="mb-4">
             <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Scheduled Date:</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{moment(appointmentDetails.date).format('DD/MM/YYYY')}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{moment(appointmentDetails.date).isValid() ? moment(appointmentDetails.date).format('DD/MM/YYYY') : appointmentDetails.date}</p>
           </div>
           <div>
             <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Appointment Time:</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">{appointmentDetails.time || "N/A"}</p>
           </div>
         </div>
-
         <div className="flex justify-end gap-3 mt-6">
           <button
             type="button"
@@ -110,11 +65,11 @@ const CancelModal: React.FC<CancelModalProps> = ({
           </button>
           <button
             type="button"
-            onClick={handleCancel}
+            onClick={onDelete}
             disabled={loading}
-            className="py-2 px-4 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="py-2 px-4 rounded-md text-sm font-medium text-white bg-red-700 hover:bg-red-800 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Cancelling...' : 'Yes, Cancel Appointment'}
+            {loading ? "Deleting..." : "Yes, Permanently Delete"}
           </button>
         </div>
       </div>
@@ -122,4 +77,4 @@ const CancelModal: React.FC<CancelModalProps> = ({
   );
 };
 
-export default CancelModal;
+export default DeleteModal;
