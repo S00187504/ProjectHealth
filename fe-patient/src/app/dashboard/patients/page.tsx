@@ -146,32 +146,57 @@ export default function PatientsPage() {
 
       {showModal && selectedPatient && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-8 relative border-4 border-blue-200">
             <button
               onClick={closeModal}
               className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl"
             >
               ×
             </button>
-            <h2 className="text-xl font-semibold mb-4">Patient Details</h2>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              {Object.entries(selectedPatient).map(([key, value]) => {
-                if (['_id', '__v', 'createdAt', 'updatedAt'].includes(key)) return null;
-                return (
-                  <div key={key}>
-                    <span className="font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span>{' '}
-                    <span>
-                      {typeof value === 'boolean'
-                        ? value
-                          ? 'Yes'
-                          : 'No'
-                        : key === 'dob' && value
-                        ? new Date(value as string).toLocaleDateString()
-                        : String(value)}
-                    </span>
-                  </div>
-                );
-              })}
+            <h2 className="text-3xl font-extrabold mb-8 text-blue-900 tracking-wide text-center border-b pb-4">Patient Medical Board</h2>
+            <div className="space-y-8">
+              {/* Personal Info */}
+              <div className="bg-blue-50 rounded-lg p-4 shadow-sm border">
+                <h3 className="text-lg font-bold mb-3 text-blue-800 border-b pb-2">Personal Information</h3>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-base">
+                  <div><span className="font-semibold">Full Name:</span> {selectedPatient.fullname}</div>
+                  <div><span className="font-semibold">Email:</span> {selectedPatient.email}</div>
+                  <div><span className="font-semibold">Phone:</span> {selectedPatient.phone}</div>
+                  <div><span className="font-semibold">Date of Birth:</span> {selectedPatient.dob ? new Date(selectedPatient.dob).toLocaleDateString() : '-'}</div>
+                  <div><span className="font-semibold">Occupation:</span> {selectedPatient.occupation}</div>
+                  <div><span className="font-semibold">Address:</span> {selectedPatient.address || '-'}</div>
+                  <div><span className="font-semibold">Physician:</span> {selectedPatient.physician || '-'}</div>
+                </div>
+              </div>
+              {/* Medical Info */}
+              <div className="bg-green-50 rounded-lg p-4 shadow-sm border">
+                <h3 className="text-lg font-bold mb-3 text-green-800 border-b pb-2">Medical Information</h3>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-base">
+                  <div><span className="font-semibold">Allergies:</span> {selectedPatient.allergies || '-'}</div>
+                  <div><span className="font-semibold">Medications:</span> {selectedPatient.medications || '-'}</div>
+                  <div><span className="font-semibold">History:</span> {selectedPatient.history || '-'}</div>
+                  <div><span className="font-semibold">Family History:</span> {selectedPatient.familyHistory || '-'}</div>
+                </div>
+              </div>
+              {/* Insurance Info */}
+              <div className="bg-yellow-50 rounded-lg p-4 shadow-sm border">
+                <h3 className="text-lg font-bold mb-3 text-yellow-800 border-b pb-2">Insurance Information</h3>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-base">
+                  <div><span className="font-semibold">Insurance:</span> {selectedPatient.insurance || '-'}</div>
+                  <div><span className="font-semibold">Policy:</span> {selectedPatient.policy || '-'}</div>
+                  <div><span className="font-semibold">ID Type:</span> {selectedPatient.identificationType || '-'}</div>
+                  <div><span className="font-semibold">Document:</span> {selectedPatient.documentFileName ? `${selectedPatient.documentFileName} (${selectedPatient.documentFileSize} KB)` : '-'}</div>
+                </div>
+              </div>
+              {/* Consents */}
+              <div className="bg-gray-50 rounded-lg p-4 shadow-sm border">
+                <h3 className="text-lg font-bold mb-3 text-gray-800 border-b pb-2">Consents</h3>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-base">
+                  <div><span className="font-semibold">Consent to Treatment:</span> <span className={`inline-block px-2 py-1 rounded font-bold ${selectedPatient.consentTreatment ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}`}>{selectedPatient.consentTreatment ? 'Yes' : 'No'}</span></div>
+                  <div><span className="font-semibold">Consent to Disclosure:</span> <span className={`inline-block px-2 py-1 rounded font-bold ${selectedPatient.consentDisclosure ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}`}>{selectedPatient.consentDisclosure ? 'Yes' : 'No'}</span></div>
+                  <div><span className="font-semibold">Privacy Acknowledged:</span> <span className={`inline-block px-2 py-1 rounded font-bold ${selectedPatient.acknowledgePrivacy ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}`}>{selectedPatient.acknowledgePrivacy ? 'Yes' : 'No'}</span></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

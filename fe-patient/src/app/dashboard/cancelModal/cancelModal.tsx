@@ -14,8 +14,6 @@ interface CancelModalProps {
   appointmentDetails: {
     patient: any;
     date: string;
-    time?: string;
-    doctor?: { fullname?: string };
   };
 }
 
@@ -83,20 +81,20 @@ const CancelModal: React.FC<CancelModalProps> = ({
 
         <div className="py-4 border-t border-b border-gray-200 dark:border-gray-700">
           <div className="mb-4">
-            <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Patient:</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{appointmentDetails.patient.fullname}</p>
-          </div>
-          <div className="mb-4">
-            <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Doctor:</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{appointmentDetails.doctor?.fullname || "N/A"}</p>
-          </div>
-          <div className="mb-4">
-            <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Scheduled Date:</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{moment(appointmentDetails.date).format('DD/MM/YYYY')}</p>
+            <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              Patient:
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {appointmentDetails.patient.fullname}
+            </p>
           </div>
           <div>
-            <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Appointment Time:</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{appointmentDetails.time || "N/A"}</p>
+            <p className="text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+              Scheduled Date:
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {moment(appointmentDetails.date).format('DD/MM/YYYY')}
+            </p>
           </div>
         </div>
 

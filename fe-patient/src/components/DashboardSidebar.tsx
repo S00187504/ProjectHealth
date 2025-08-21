@@ -22,10 +22,7 @@ export default function DashboardSidebar() {
   };
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  type RoleType = keyof typeof SIDEBAR_LINKS;
-  const validRoles: RoleType[] = ["admin", "doctor", "patient"];
-  const role: RoleType = validRoles.includes(user?.role as RoleType) ? (user?.role as RoleType) : "patient";
-  const links = SIDEBAR_LINKS[role] || [];
+  const links = SIDEBAR_LINKS[user?.role] || [];
   // Helper to get initials from name
   const getInitials = (name?: string) => {
     if (!name) return "U";

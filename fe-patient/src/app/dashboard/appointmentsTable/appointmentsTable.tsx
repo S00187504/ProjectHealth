@@ -15,7 +15,6 @@ import {
 import { Check, Clock, X, Plus, Info, Ban, Trash } from "lucide-react";
 import ScheduleModal from "../scheduleModal/scheduleModal";
 import CancelModal from "../cancelModal/cancelModal";
-import DeleteModal from "../cancelModal/deleteModal";
 import PatientDetailsModal from "../patientDetailsModal/patientDetailsModal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -126,8 +125,6 @@ export default function AppointmentsTable({
     useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [currentTab, setCurrentTab] = useState("all");
   const [patientEmailForSchedule, setPatientEmailForSchedule] = useState<
@@ -136,6 +133,8 @@ export default function AppointmentsTable({
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
     null
   );
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Debug information only
   useEffect(() => {
@@ -148,7 +147,12 @@ export default function AppointmentsTable({
 
   const handleCancelClick = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
-    setIsCancelModalOpen(true);
+    setShowCancelConfirm(true);
+  };
+
+  const handleDeleteClick = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setShowDeleteConfirm(true);
   };
 
   const handleDetailsClick = (appointment: Appointment) => {
@@ -363,7 +367,7 @@ export default function AppointmentsTable({
                           <span className="sr-only">Edit</span>
                           <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-gray-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Edit Appointment</span>
                         </Button>
-                        {/* Cancel button with modal confirmation */}
+                        {/* Cancel button */}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -426,88 +430,23 @@ export default function AppointmentsTable({
                         </Button>
                       </>
                     )}
-                    {/* Cancel confirmation modal for admin/doctor */}
-                    {isCancelModalOpen && selectedAppointment && (
-                      <CancelModal
-                        isOpen={isCancelModalOpen}
-                        onClose={() => {
-                          setIsCancelModalOpen(false);
-                          setSelectedAppointment(null);
-                        }}
-                        appointmentId={selectedAppointment._id}
-                        appointmentDetails={{
-                          patient: selectedAppointment.patient,
-                          date: selectedAppointment.appointmentDate ?? selectedAppointment.startTime ?? "",
-                          time:
-                            selectedAppointment.appointmentTime && selectedAppointment.appointmentTime !== ""
-                              ? selectedAppointment.appointmentTime
-                              : selectedAppointment.startTime && selectedAppointment.startTime !== ""
-                              ? selectedAppointment.startTime + (selectedAppointment.endTime && selectedAppointment.endTime !== "" ? ` - ${selectedAppointment.endTime}` : "")
-                              : "No time set",
-                          doctor:
-                            selectedAppointment.doctor && selectedAppointment.doctor.fullname && selectedAppointment.doctor.fullname !== ""
-                              ? selectedAppointment.doctor
-                              : { fullname: "No doctor assigned" },
-                        }}
-                        setAppointments={setAppointments}
-                      />
-                    )}
+                    {/* Status update icons for admin/doctor - removed duplicate permanent delete button */}
                     {['admin', 'doctor'].includes(user?.role || '') && ( 
                       <> 
                         {/* ...existing code for edit, complete, revert, cancel... */}
-                        {/* Permanent delete button for admins with custom modal */}
+                        {/* Permanent delete button for admins */}
                         {user?.role === 'admin' && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-red-700 hover:text-red-800 hover:bg-red-100 group relative"
-                              title="Permanently Delete Appointment"
-                              onClick={() => {
-                                setSelectedAppointment(appointment);
-                                setIsDeleteModalOpen(true);
-                              }}
-                            >
-                              <Trash className="h-4 w-4" />
-                              <span className="sr-only">Delete</span>
-                              <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-red-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Delete Appointment</span>
-                            </Button>
-                            <DeleteModal
-                              isOpen={isDeleteModalOpen}
-                              onClose={() => {
-                                setIsDeleteModalOpen(false);
-                                setSelectedAppointment(null);
-                              }}
-                              onDelete={async () => {
-                                setDeleteLoading(true);
-                                try {
-                                  await patientApi.deleteAppointment(selectedAppointment?._id || "");
-                                  setAppointments(appointments.filter((apt) => apt._id !== selectedAppointment?._id));
-                                  toast.success('Appointment permanently deleted');
-                                  setIsDeleteModalOpen(false);
-                                  setSelectedAppointment(null);
-                                } catch (err) {
-                                  toast.error('Failed to delete appointment');
-                                }
-                                setDeleteLoading(false);
-                              }}
-                              loading={deleteLoading}
-                              appointmentDetails={{
-                                patient: selectedAppointment?.patient || "",
-                                date: selectedAppointment?.appointmentDate ?? selectedAppointment?.startTime ?? "",
-                                time:
-                                  selectedAppointment?.appointmentTime && selectedAppointment?.appointmentTime !== ""
-                                    ? selectedAppointment?.appointmentTime
-                                    : selectedAppointment?.startTime && selectedAppointment?.startTime !== ""
-                                    ? selectedAppointment?.startTime + (selectedAppointment?.endTime && selectedAppointment?.endTime !== "" ? ` - ${selectedAppointment?.endTime}` : "")
-                                    : "No time set",
-                                doctor:
-                                  selectedAppointment?.doctor && selectedAppointment?.doctor.fullname && selectedAppointment?.doctor.fullname !== ""
-                                    ? selectedAppointment?.doctor
-                                    : { fullname: "No doctor assigned" },
-                              }}
-                            />
-                          </>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-700 hover:text-red-800 hover:bg-red-100 group relative"
+                            title="Permanently Delete Appointment"
+                            onClick={() => handleDeleteClick(appointment)}
+                          >
+                            <Trash className="h-4 w-4" />
+                            <span className="sr-only">Delete</span>
+                            <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-red-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">Delete Appointment</span>
+                          </Button>
                         )}
                       </>
                     )}
@@ -823,17 +762,7 @@ export default function AppointmentsTable({
         appointmentId={selectedAppointment?._id || ""}
         appointmentDetails={{
           patient: selectedAppointment?.patient || "",
-          date: selectedAppointment?.appointmentDate ?? selectedAppointment?.startTime ?? "",
-          time:
-            selectedAppointment?.appointmentTime && selectedAppointment?.appointmentTime !== ""
-              ? selectedAppointment?.appointmentTime
-              : selectedAppointment?.startTime && selectedAppointment?.startTime !== ""
-              ? selectedAppointment?.startTime + (selectedAppointment?.endTime && selectedAppointment?.endTime !== "" ? ` - ${selectedAppointment?.endTime}` : "")
-              : "No time set",
-          doctor:
-            selectedAppointment?.doctor && selectedAppointment?.doctor.fullname && selectedAppointment?.doctor.fullname !== ""
-              ? selectedAppointment?.doctor
-              : { fullname: "No doctor assigned" },
+          date: selectedAppointment?.appointmentDate || "",
         }}
         setAppointments={setAppointments}
       />
@@ -844,6 +773,93 @@ export default function AppointmentsTable({
         onClose={() => setIsPatientDetailsModalOpen(false)}
         patientId={selectedPatientId || undefined}
       />
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelConfirm && selectedAppointment && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h3 className="text-lg font-semibold mb-4 text-red-700">Are you sure you want to cancel this appointment?</h3>
+            <p className="mb-4">This action cannot be undone.</p>
+            <div className="mb-4 border rounded p-3 bg-gray-50">
+              <h4 className="font-semibold mb-2">Appointment Information</h4>
+              <ul className="text-sm space-y-1">
+                <li><strong>Patient:</strong> {selectedAppointment.patient?.fullname || "Unknown"}</li>
+                <li><strong>Date:</strong> {selectedAppointment.appointmentDate ? moment(selectedAppointment.appointmentDate).format("DD/MM/YYYY") : "No date set"}</li>
+                <li><strong>Time:</strong> {selectedAppointment.appointmentTime || selectedAppointment.startTime || "No time set"}</li>
+                <li><strong>Status:</strong> {selectedAppointment.status}</li>
+                <li><strong>Doctor:</strong> {selectedAppointment.doctor?.fullname || "No doctor assigned"}</li>
+                <li><strong>Reason:</strong> {selectedAppointment.reason || "No reason provided"}</li>
+              </ul>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowCancelConfirm(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  try {
+                    const updated = { ...selectedAppointment, status: 'Cancelled' };
+                    await patientApi.updateAppointment(selectedAppointment._id, {
+                      status: 'Cancelled',
+                    });
+                    const updatedAppointments = appointments.map((apt) =>
+                      apt._id === selectedAppointment._id ? updated : apt
+                    );
+                    setAppointments(updatedAppointments);
+                    toast.success('Marked as Cancelled');
+                    setShowCancelConfirm(false);
+                  } catch (err) {
+                    toast.error('Failed to update status');
+                  }
+                }}
+              >
+                Confirm Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Permanent Delete Confirmation Modal */}
+      {showDeleteConfirm && selectedAppointment && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h3 className="text-lg font-semibold mb-4 text-red-700">Are you sure you want to permanently delete this appointment?</h3>
+            <p className="mb-4">This action cannot be undone.</p>
+            <div className="mb-4 border rounded p-3 bg-gray-50">
+              <h4 className="font-semibold mb-2">Appointment Information</h4>
+              <ul className="text-sm space-y-1">
+                <li><strong>Patient:</strong> {selectedAppointment.patient?.fullname || "Unknown"}</li>
+                <li><strong>Date:</strong> {selectedAppointment.appointmentDate ? moment(selectedAppointment.appointmentDate).format("DD/MM/YYYY") : "No date set"}</li>
+                <li><strong>Time:</strong> {selectedAppointment.appointmentTime || selectedAppointment.startTime || "No time set"}</li>
+                <li><strong>Status:</strong> {selectedAppointment.status}</li>
+                <li><strong>Doctor:</strong> {selectedAppointment.doctor?.fullname || "No doctor assigned"}</li>
+                <li><strong>Reason:</strong> {selectedAppointment.reason || "No reason provided"}</li>
+              </ul>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={async () => {
+                  try {
+                    await patientApi.deleteAppointment(selectedAppointment._id);
+                    setAppointments(appointments.filter((apt) => apt._id !== selectedAppointment._id));
+                    toast.success('Appointment permanently deleted');
+                    setShowDeleteConfirm(false);
+                  } catch (err) {
+                    toast.error('Failed to delete appointment');
+                  }
+                }}
+              >
+                Confirm Delete
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
