@@ -25,7 +25,9 @@ const Header = () => {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <Avatar>
-              <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
+              <AvatarFallback className="bg-gray-700 text-white font-bold text-lg flex items-center justify-center h-9 w-9 rounded-full">
+                {getInitials(user?.name)}
+              </AvatarFallback>
             </Avatar>
             {/* Display Admin or User based on user role */}
             <span>{user && user.name}</span>

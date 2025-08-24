@@ -21,6 +21,7 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
   const [formError, setFormError] = useState<string | null>(null);
   const [doctorOptions, setDoctorOptions] = useState<{ value: string; label: string }[]>([]);
   const [appointmentData, setAppointmentData] = useState<any | null>(null);
+  const [originalPatientId, setOriginalPatientId] = useState<string>("");
   const [date, setDate] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
@@ -47,6 +48,7 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
           reason: data.reason || "",
           additionalComments: data.notes || "",
         });
+        setOriginalPatientId(data.patient?._id || "");
         setDate(data.appointmentDate ? data.appointmentDate.slice(0, 10) : "");
         setStartTime(data.startTime || "");
         setEndTime(data.endTime || "");
@@ -102,11 +104,20 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
       setFormError("Patient or doctor ID missing. Please log in and select a doctor.");
       return;
     }
+    // Validate start time is before end time
+    const start = startTime.split(":");
+    const end = endTime.split(":");
+    const startMinutes = parseInt(start[0], 10) * 60 + parseInt(start[1], 10);
+    const endMinutes = parseInt(end[0], 10) * 60 + parseInt(end[1], 10);
+    if (startMinutes >= endMinutes) {
+      setFormError("Start time must be before end time.");
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
       const payload = {
-        patient: user?._id,
+        patient: originalPatientId || user?._id,
         appointmentDate: date,
         startTime: to12HourFormat(startTime),
         endTime: to12HourFormat(endTime),

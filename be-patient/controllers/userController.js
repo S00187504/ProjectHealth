@@ -111,7 +111,7 @@ const getAllDoctors = async (req, res) => {
   try {
     const doctors = await User.find(
       { isDoctor: true },
-      { fullname: 1, email: 1, _id: 1 } // only return necessary fields
+      { fullname: 1, email: 1, phone: 1, _id: 1 } // include phone field
     );
 
     res.json(doctors);

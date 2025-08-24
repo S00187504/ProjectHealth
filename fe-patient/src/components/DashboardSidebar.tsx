@@ -2,8 +2,10 @@
 'use client';
 
 import Link from 'next/link';
+// import { SidebarAvatar } from './SidebarAvatar';
 import { usePathname } from 'next/navigation';
 import { SIDEBAR_LINKS } from '@/constants/sidebarLinks';
+type Role = keyof typeof SIDEBAR_LINKS;
 import { useAuth } from "@/context/AuthContext" // or however you access role
 
 export default function DashboardSidebar() {
@@ -22,7 +24,7 @@ export default function DashboardSidebar() {
   };
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const role = user?.role || "user";
+  const role = (user?.role as Role) || "patient";
   const name = user?.name || "Unknown";
   const links = SIDEBAR_LINKS[role] || [];
   // Helper to get initials from name

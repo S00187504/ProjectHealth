@@ -2,7 +2,7 @@
 export default function DoctorOverviewPage() {
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Doctor Dashboard</h1>
+  <h1 className="text-3xl font-bold mb-6">Doctor Dashboard</h1>
       <div className="flex flex-col md:flex-row items-center mb-6 p-6 bg-blue-50 rounded-lg shadow">
         <img src="/doctor.jpeg" alt="Doctor" className="w-32 h-32 object-cover rounded-full mb-4 md:mb-0 md:mr-6 border-4 border-blue-200" />
         <div>
