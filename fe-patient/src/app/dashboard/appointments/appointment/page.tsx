@@ -12,7 +12,7 @@ import Image from "next/image";
 import { useFormContext } from "@/context/formContext";
 import { useAuth } from "@/context/AuthContext";
 import api, { patientApi } from "@/lib/api";
-import { ModeToggle } from "@/components/mode";
+// import { ModeToggle } from "@/components/mode";
 
 // 24h "HH:MM" -> "h:MM AM/PM"
 const toAmPm = (t24: string) => {
@@ -167,7 +167,7 @@ function AppointmentPage() {
         <section>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-xl font-bold">Schedule Appointment</h1>
-            <ModeToggle />
+            {/* Removed ModeToggle */}
           </div>
 
           <section className="text-start w-full max-w-[600px]">

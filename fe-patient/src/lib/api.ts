@@ -144,6 +144,16 @@ export const doctorApi = {
   getAllDoctors: async () => {
     return api.get('/users/doctors');
   },
+
+  // Delete a doctor
+  deleteDoctor: async (id: string) => {
+    return api.delete(`/users/doctors/${id}`);
+  },
+
+  // Verify a doctor
+  verifyDoctor: async (id: string) => {
+    return api.put(`/users/doctors/${id}/verify`);
+  },
 };
 
 export const patientPublicApi = {

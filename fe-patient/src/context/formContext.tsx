@@ -6,6 +6,11 @@ import { useAuth } from "./AuthContext"
 
 // Define the structure of our form data
 interface FormDataType {
+  // Doctor Professional Info
+  specialization?: string;
+  qualifications?: string;
+  biography?: string;
+  isVerified?: boolean;
   // Personal Information
   fullname?: string
   email?: string

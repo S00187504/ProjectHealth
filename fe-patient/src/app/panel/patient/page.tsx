@@ -8,7 +8,7 @@ import MedicalData from './medicalData/medicalData'
 import IdentificationData from './identification/identificationData'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { ModeToggle } from '@/components/mode' // Import the ModeToggle component
+// import { ModeToggle } from '@/components/mode'
 
 /**
  * Patient Registration Page
@@ -48,7 +48,7 @@ export default function PatientPage() {
                     {/* Add a header with the theme toggle */}
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-xl font-bold">Patient Information</h1>
-                        <ModeToggle />
+                        {/* Removed ModeToggle */}
                     </div>
                     
                     {(error || submitError) && (

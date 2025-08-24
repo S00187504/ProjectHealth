@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ModeToggle } from "@/components/mode"
+// import { ModeToggle } from "@/components/mode"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/context/AuthContext"
 import { MdLogout } from "react-icons/md"
@@ -35,7 +35,7 @@ export default function DashboardHeader() {
             <MdLogout className="w-4 h-4" />
             Logout
           </Button> */}
-          <ModeToggle />
+          {/* Removed ModeToggle */}
         </div>
       </div>
     </header>

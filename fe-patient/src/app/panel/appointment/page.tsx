@@ -14,7 +14,7 @@ import Image from "next/image";
 import { useFormContext } from "@/context/formContext";
 import { useAuth } from "@/context/AuthContext";
 import { patientApi } from "@/lib/api";
-import { ModeToggle } from "@/components/mode"; // Import the ModeToggle component
+// import { ModeToggle } from "@/components/mode";
 
 function AppointmentPage() {
     const router = useRouter();
@@ -81,7 +81,7 @@ function AppointmentPage() {
                     {/* Add a header with the theme toggle */}
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-xl font-bold">Schedule Appointment</h1>
-                        <ModeToggle />
+                        {/* Removed ModeToggle */}
                     </div>
                     
                     <section className="text-start w-full max-w-[600px]">

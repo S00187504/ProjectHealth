@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { ModeToggle } from './mode';
+// import { ModeToggle } from './mode';
 import { MdLogout } from 'react-icons/md';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -40,11 +40,9 @@ const Header = () => {
             <MdLogout className="w-4 h-4" />
             Logout
           </Button>
-          <ModeToggle />
         </div>
       ) : (
         <div className="flex gap-4 items-center">
-          <ModeToggle />
           <Link href="/login">
             <Button variant="outline" size="sm">
               Login

@@ -712,7 +712,7 @@ export default function AppointmentsTable({
         <div className="flex justify-between items-center px-6 pt-6">
           <h2 className="text-lg font-semibold">Appointments</h2>
           {user?.role === "patient" ? (
-            <Link href="/dashboard/appointments/patient">
+            <Link href="/dashboard/appointments/appointment">
               <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />
                 New Appointment

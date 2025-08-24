@@ -117,7 +117,7 @@ export default function PatientsPage() {
                       >
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">View</span>
-                        <span className="absolute left-1/2 -translate-x-1/2 mt-7 px-2 py-1 text-[9px] bg-blue-800 text-white rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">View Patient</span>
+                        {/* Undo: Remove tooltip label for 'View Patient' button */}
                       </Button>
                       {user?.role === 'admin' && (
                         <Button

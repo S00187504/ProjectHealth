@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import api, { patientApi } from "@/lib/api";
-import { ModeToggle } from "@/components/mode";
+// import { ModeToggle } from "@/components/mode";
 import { useAuth } from "@/context/AuthContext";
 
 export default function EditAppointmentPage({ params }: { params: { id: string } }) {
@@ -137,7 +137,7 @@ export default function EditAppointmentPage({ params }: { params: { id: string }
         <section>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-xl font-bold">Edit Appointment</h1>
-            <ModeToggle />
+            {/* Removed ModeToggle */}
           </div>
           <section className="text-start w-full max-w-[600px]">
             <h2 className="text-xl mb-2">Edit your appointment details below.</h2>

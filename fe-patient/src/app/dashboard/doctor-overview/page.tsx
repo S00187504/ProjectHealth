@@ -28,6 +28,34 @@ export default function DoctorOverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Doctor Info Form */}
+      <div className="max-w-xl mx-auto bg-white rounded-lg shadow p-8 border mt-8">
+        <h2 className="text-2xl font-bold mb-6 text-blue-900 text-center border-b pb-4">Doctor Information</h2>
+        <form className="space-y-6">
+          <div>
+            <label className="block font-semibold mb-1">Full Name</label>
+            <input type="text" className="w-full border rounded px-3 py-2" placeholder="Enter your full name" />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1">Email</label>
+            <input type="email" className="w-full border rounded px-3 py-2" placeholder="Enter your email" />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1">Phone</label>
+            <input type="tel" className="w-full border rounded px-3 py-2" placeholder="Enter your phone number" />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1">Specialization</label>
+            <input type="text" className="w-full border rounded px-3 py-2" placeholder="Enter your specialization" />
+          </div>
+          <div>
+            <label className="block font-semibold mb-1">Biography</label>
+            <textarea className="w-full border rounded px-3 py-2" rows={3} placeholder="Write a short bio" />
+          </div>
+          <button type="submit" className="w-full bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-800 transition">Save Information</button>
+        </form>
+      </div>
     </div>
   );
 }
