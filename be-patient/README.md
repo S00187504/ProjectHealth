@@ -4,17 +4,79 @@ A comprehensive healthcare management system built with Express.js, MongoDB, and
 
 ## Features
 
-- Express.js server with RESTful API architecture
-- MongoDB database with Mongoose ODM
-- JWT authentication with role-based access control
-- User and patient management
-- Appointment scheduling and tracking
-- Medical records management
-- Error handling middleware
-- CORS configuration for frontend integration
 
-## Installation
+## ProjectHealth Backend (be-patient)
 
+### Background
+ProjectHealth is a comprehensive healthcare management platform designed to streamline patient, appointment, and medical record management for clinics and healthcare providers. The backend (be-patient) is built with Node.js and Express, providing RESTful APIs for handling users, patients, appointments, and medical records. It connects to a MongoDB database and supports authentication and authorization for secure access.
+
+### Features
+- User authentication and authorization
+- Patient management (CRUD operations)
+- Appointment scheduling and management
+- Medical record storage and retrieval
+- Admin and client roles
+
+### Prerequisites
+Before you begin, ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (v16 or higher recommended)
+- [npm](https://www.npmjs.com/)
+- [MongoDB](https://www.mongodb.com/) (local or Atlas)
+
+### Step-by-Step Setup Guide
+
+#### 1. Clone the Repository
+```powershell
+# In PowerShell, navigate to your desired directory and run:
+git clone https://github.com/S00187504/ProjectHealth.git
+cd ProjectHealth/be-patient
+```
+
+#### 2. Install Dependencies
+```powershell
+npm install
+```
+
+#### 3. Configure Environment Variables
+Edit the `.env` file in the `be-patient` folder. Set your MongoDB connection string and JWT secret:
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+NODE_ENV=development
+JWT_SECRET=your_jwt_secret
+```
+You can use MongoDB Atlas or a local MongoDB instance. Replace `your_mongodb_connection_string` and `your_jwt_secret` with your own values.
+
+#### 4. Seed the Database (Optional)
+To create an admin user or seed appointments, use the scripts provided:
+```powershell
+# Create an admin user
+node scripts/createAdmin.js
+
+# Seed appointments
+node scripts/seedAppointments.js
+```
+
+#### 5. Start the Backend Server
+```powershell
+npm start
+```
+The server will run on the port specified in your `.env` file (default: 5000).
+
+#### 6. API Endpoints
+The backend exposes RESTful endpoints for users, patients, appointments, and medical records. You can interact with these endpoints using tools like [Postman](https://www.postman.com/) or connect the frontend (see `fe-patient` folder).
+
+### Folder Structure
+- `config/` - Database configuration
+- `controllers/` - Route logic for appointments, patients, users, medical records
+- `middleware/` - Authentication middleware
+- `models/` - Mongoose models
+- `routes/` - API route definitions
+- `scripts/` - Utility scripts for seeding data
+- `utils/` - Helper functions
+
+### Support
+For issues or questions, please open an issue on the GitHub repository.
 1. Clone the repository
 2. Install dependencies
    ```
