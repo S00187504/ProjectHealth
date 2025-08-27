@@ -30,7 +30,7 @@ export default function DoctorOverviewPage() {
       </div>
 
       {/* Doctor Info Form */}
-      <div className="max-w-xl mx-auto bg-white rounded-lg shadow p-8 border mt-8">
+      {/* <div className="max-w-xl mx-auto bg-white rounded-lg shadow p-8 border mt-8">
         <h2 className="text-2xl font-bold mb-6 text-blue-900 text-center border-b pb-4">Doctor Information</h2>
         <form className="space-y-6">
           <div>
@@ -55,7 +55,7 @@ export default function DoctorOverviewPage() {
           </div>
           <button type="submit" className="w-full bg-blue-700 text-white font-bold py-2 rounded hover:bg-blue-800 transition">Save Information</button>
         </form>
-      </div>
+      </div> */}
     </div>
   );
 }
